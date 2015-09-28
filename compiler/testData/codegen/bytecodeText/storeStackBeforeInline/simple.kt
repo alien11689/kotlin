@@ -1,4 +1,3 @@
-
 inline fun bar(x: Int) : Int {
     return x
 }
