@@ -71,14 +71,16 @@ public class KotlinSmartStepIntoHandler : JvmSmartStepIntoHandler() {
                 if (resolvedCall != null && !InlineUtil.isInline(resolvedCall.getResultingDescriptor())) {
                     val arguments = resolvedCall.getValueArguments()
                     for ((param, argument) in arguments) {
-                        if (argument.getArguments().any { it.getArgumentExpression() == expression}) {
-                            val label = KotlinLambdaSmartStepTarget.calcLabel(resolvedCall.getResultingDescriptor(), param.getName())
-                            result.add(KotlinLambdaSmartStepTarget(label, expression, lines))
+                        if (argument.arguments.any { getArgumentExpression(it) == function }) {
+                            val label = KotlinLambdaSmartStepTarget.calcLabel(resolvedCall.resultingDescriptor, param.name)
+                            result.add(KotlinLambdaSmartStepTarget(label, function, lines, InlineUtil.isInline(resolvedCall.resultingDescriptor)))
                             break
                         }
                     }
                 }
             }
+
+            private fun getArgumentExpression(it: ValueArgument) = (it.getArgumentExpression() as? JetFunctionLiteralExpression)?.functionLiteral ?: it.getArgumentExpression()
 
             override fun visitObjectLiteralExpression(expression: JetObjectLiteralExpression) {
                 // skip calls in object declarations
