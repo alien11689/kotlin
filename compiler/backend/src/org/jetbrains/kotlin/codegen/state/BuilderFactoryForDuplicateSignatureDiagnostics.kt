@@ -105,14 +105,14 @@ class BuilderFactoryForDuplicateSignatureDiagnostics(
             if (origins.size() <= 1) continue
 
             var memberElement: PsiElement? = null
-            var nonFakeCount = 0
+            var ownNonFakeCount = 0
             for (origin in origins) {
                 val member = origin.descriptor as? CallableMemberDescriptor?
-                if (member != null && member.getKind() != FAKE_OVERRIDE) {
-                    nonFakeCount++
+                if (member != null && member.containingDeclaration == classOrigin.descriptor && member.getKind() != FAKE_OVERRIDE) {
+                    ownNonFakeCount++
                     // If there's more than one real element, the clashing signature is already reported.
                     // Only clashes between fake overrides are interesting here
-                    if (nonFakeCount > 1) continue@signatures
+                    if (ownNonFakeCount > 1) continue@signatures
 
                     if (member.getKind() != DELEGATION) {
                         // Delegates don't have declarations in the code
@@ -158,8 +158,13 @@ class BuilderFactoryForDuplicateSignatureDiagnostics(
             }
         }
 
-        for (member in descriptor.getDefaultType().getMemberScope().getDescriptors()) {
-            processMember(member)
+        descriptor.defaultType.memberScope.getDescriptors().forEach(::processMember)
+        descriptor.getParentJavaStaticClassScope()?.run {
+            getDescriptors(DescriptorKindFilter.FUNCTIONS)
+                    .filter {
+                        it is FunctionDescriptor && Visibilities.isVisible(ReceiverValue.IRRELEVANT_RECEIVER, it, descriptor)
+                    }
+                    .forEach(::processMember)
         }
 
         return groupedBySignature
