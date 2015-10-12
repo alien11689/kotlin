@@ -18,6 +18,8 @@ package org.jetbrains.kotlin.codegen.state;
 
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiElement;
+import kotlin.CollectionsKt;
+import kotlin.jvm.functions.Function1;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.builtins.BuiltinsPackageFragment;
@@ -595,6 +597,11 @@ public class JetTypeMapper {
             boolean projectionsAllowed
     ) {
         if (signatureVisitor != null) {
+            if (hasNothingInArguments(jetType)) {
+                signatureVisitor.writeAsmType(asmType);
+                return;
+            }
+
             signatureVisitor.writeClassBegin(asmType);
 
             List<TypeProjection> arguments = jetType.getArguments();
@@ -620,6 +627,15 @@ public class JetTypeMapper {
             }
             signatureVisitor.writeClassEnd();
         }
+    }
+
+    private static boolean hasNothingInArguments(JetType jetType) {
+        return CollectionsKt.any(jetType.getArguments(), new Function1<TypeProjection, Boolean>() {
+            @Override
+            public Boolean invoke(TypeProjection projection) {
+                return KotlinBuiltIns.isNothingOrNullableNothing(projection.getType());
+            }
+        });
     }
 
     private static Variance getEffectiveVariance(Variance parameterVariance, Variance projectionKind, Variance howThisTypeIsUsed) {
