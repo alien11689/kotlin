@@ -91,6 +91,12 @@ public class OperatorModifierInspection : AbstractKotlinInspection() {
         if (arity >= 2 && name == OperatorNameConventions.SET) {
             return true
         }
+        if (arity >= 2 && name == OperatorNameConventions.GET_VALUE) {
+            return true
+        }
+        if (arity >= 3 && name == OperatorNameConventions.SET_VALUE) {
+            return true
+        }
         return false
     }
 
