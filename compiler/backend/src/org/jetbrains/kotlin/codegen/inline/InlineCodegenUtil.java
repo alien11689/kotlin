@@ -47,7 +47,6 @@ import org.jetbrains.kotlin.resolve.DescriptorUtils;
 import org.jetbrains.kotlin.resolve.descriptorUtil.DescriptorUtilPackage;
 import org.jetbrains.kotlin.resolve.jvm.AsmTypes;
 import org.jetbrains.kotlin.resolve.jvm.JvmClassName;
-import org.jetbrains.kotlin.types.expressions.OperatorConventions;
 import org.jetbrains.kotlin.util.OperatorNameConventions;
 import org.jetbrains.org.objectweb.asm.*;
 import org.jetbrains.org.objectweb.asm.commons.InstructionAdapter;
@@ -492,5 +491,24 @@ public class InlineCodegenUtil {
 
     public static boolean isStoreInstruction(int opcode) {
         return opcode >= Opcodes.ISTORE && opcode <= Opcodes.ASTORE;
+    }
+
+    public static int calcMarkerShift(Parameters parameters, MethodNode node) {
+        int markerShiftTemp = getIndexAfterLastMarker(node);
+        return markerShiftTemp - parameters.getRealArgsSizeOnStack() + parameters.getArgsSizeOnStack();
+    }
+
+    protected static int getIndexAfterLastMarker(MethodNode node) {
+        int markerShiftTemp = -1;
+        for (LocalVariableNode variable : node.localVariables) {
+            if (isFakeLocalVariableForInline(variable.name)) {
+                markerShiftTemp = Math.max(markerShiftTemp, variable.index + 1);
+            }
+        }
+        return markerShiftTemp;
+    }
+
+    public static boolean isFakeLocalVariableForInline(@NotNull String name) {
+        return name.startsWith(JvmAbi.LOCAL_VARIABLE_NAME_PREFIX_INLINE_FUNCTION) || name.startsWith(JvmAbi.LOCAL_VARIABLE_NAME_PREFIX_INLINE_ARGUMENT);
     }
 }
