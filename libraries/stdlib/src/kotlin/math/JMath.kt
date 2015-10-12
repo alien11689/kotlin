@@ -29,13 +29,13 @@ public operator fun BigInteger.div(other: BigInteger) : BigInteger = this.divide
 /**
  * Enables the use of the unary `-` operator for [BigInteger] instances.
  */
-public operator fun BigInteger.minus() : BigInteger = this.negate()
+public operator fun BigInteger.unaryMinus() : BigInteger = this.negate()
 
 
 /**
  * Enables the use of the `+` operator for [BigDecimal] instances.
  */
-public operator fun BigDecimal.plus(other: BigDecimal) : BigDecimal = this.add(other)
+public operator fun BigDecimal.unaryPlus(other: BigDecimal) : BigDecimal = this.add(other)
 
 /**
  * Enables the use of the `-` operator for [BigDecimal] instances.

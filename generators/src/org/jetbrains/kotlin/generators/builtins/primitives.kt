@@ -31,7 +31,9 @@ class GeneratePrimitives(out: PrintWriter) : BuiltInsSourceGenerator(out) {
     private val unaryOperators: Map<String, String> = mapOf(
             "inc" to "Increments this value.",
             "dec" to "Decrements this value.",
+            "unaryPlus" to "Returns this value.",
             "plus" to "Returns this value.",
+            "unaryMinus" to "Returns the negative of this value.",
             "minus" to "Returns the negative of this value.")
     private val shiftOperators: Map<String, String> = mapOf(
             "shl" to "Shifts this value left by [bits].",
@@ -131,8 +133,9 @@ class GeneratePrimitives(out: PrintWriter) : BuiltInsSourceGenerator(out) {
     private fun generateUnaryOperators(kind: PrimitiveType) {
         for ((name, doc) in unaryOperators) {
             val returnType = if (kind in listOf(PrimitiveType.SHORT, PrimitiveType.BYTE, PrimitiveType.CHAR) &&
-                                 name in listOf("plus", "minus")) "Int" else kind.capitalized
+                                 name in listOf("unaryPlus", "unaryMinus", "plus", "minus")) "Int" else kind.capitalized
             out.println("    /** $doc */")
+            if (name in listOf("plus", "minus")) out.println("    @Deprecated(\"Use unary${name.capitalize()} instead\")")
             out.println("    public operator fun $name(): $returnType")
         }
         out.println()

@@ -132,8 +132,14 @@ public class Byte private () : Number, Comparable<Byte> {
     /** Decrements this value. */
     public operator fun dec(): Byte
     /** Returns this value. */
+    public operator fun unaryPlus(): Int
+    /** Returns this value. */
+    @Deprecated("Use unaryPlus instead")
     public operator fun plus(): Int
     /** Returns the negative of this value. */
+    public operator fun unaryMinus(): Int
+    /** Returns the negative of this value. */
+    @Deprecated("Use unaryMinus instead")
     public operator fun minus(): Int
 
      /** Creates a range from this value to the specified [other] value. */
@@ -272,8 +278,14 @@ public class Short private () : Number, Comparable<Short> {
     /** Decrements this value. */
     public operator fun dec(): Short
     /** Returns this value. */
+    public operator fun unaryPlus(): Int
+    /** Returns this value. */
+    @Deprecated("Use unaryPlus instead")
     public operator fun plus(): Int
     /** Returns the negative of this value. */
+    public operator fun unaryMinus(): Int
+    /** Returns the negative of this value. */
+    @Deprecated("Use unaryMinus instead")
     public operator fun minus(): Int
 
      /** Creates a range from this value to the specified [other] value. */
@@ -412,8 +424,14 @@ public class Int private () : Number, Comparable<Int> {
     /** Decrements this value. */
     public operator fun dec(): Int
     /** Returns this value. */
+    public operator fun unaryPlus(): Int
+    /** Returns this value. */
+    @Deprecated("Use unaryPlus instead")
     public operator fun plus(): Int
     /** Returns the negative of this value. */
+    public operator fun unaryMinus(): Int
+    /** Returns the negative of this value. */
+    @Deprecated("Use unaryMinus instead")
     public operator fun minus(): Int
 
      /** Creates a range from this value to the specified [other] value. */
@@ -567,8 +585,14 @@ public class Long private () : Number, Comparable<Long> {
     /** Decrements this value. */
     public operator fun dec(): Long
     /** Returns this value. */
+    public operator fun unaryPlus(): Long
+    /** Returns this value. */
+    @Deprecated("Use unaryPlus instead")
     public operator fun plus(): Long
     /** Returns the negative of this value. */
+    public operator fun unaryMinus(): Long
+    /** Returns the negative of this value. */
+    @Deprecated("Use unaryMinus instead")
     public operator fun minus(): Long
 
      /** Creates a range from this value to the specified [other] value. */
@@ -722,8 +746,14 @@ public class Float private () : Number, Comparable<Float> {
     /** Decrements this value. */
     public operator fun dec(): Float
     /** Returns this value. */
+    public operator fun unaryPlus(): Float
+    /** Returns this value. */
+    @Deprecated("Use unaryPlus instead")
     public operator fun plus(): Float
     /** Returns the negative of this value. */
+    public operator fun unaryMinus(): Float
+    /** Returns the negative of this value. */
+    @Deprecated("Use unaryMinus instead")
     public operator fun minus(): Float
 
      /** Creates a range from this value to the specified [other] value. */
@@ -862,8 +892,14 @@ public class Double private () : Number, Comparable<Double> {
     /** Decrements this value. */
     public operator fun dec(): Double
     /** Returns this value. */
+    public operator fun unaryPlus(): Double
+    /** Returns this value. */
+    @Deprecated("Use unaryPlus instead")
     public operator fun plus(): Double
     /** Returns the negative of this value. */
+    public operator fun unaryMinus(): Double
+    /** Returns the negative of this value. */
+    @Deprecated("Use unaryMinus instead")
     public operator fun minus(): Double
 
      /** Creates a range from this value to the specified [other] value. */
