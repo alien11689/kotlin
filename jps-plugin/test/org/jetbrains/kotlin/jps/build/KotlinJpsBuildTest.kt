@@ -757,18 +757,18 @@ public class KotlinJpsBuildTest : AbstractKotlinJpsBuildTestCase() {
         DELETE
     }
 
-    protected fun touch(path: String): Action = Action(Operation.CHANGE, path)
+    private fun touch(path: String): Action = Action(Operation.CHANGE, path)
 
-    protected fun del(path: String): Action = Action(Operation.DELETE, path)
+    private fun del(path: String): Action = Action(Operation.DELETE, path)
 
-    protected fun change(filePath: String): Unit = JpsBuildTestCase.change(filePath)
+    private fun change(file: File): Unit = JpsBuildTestCase.change(file.absolutePath)
 
-    protected inner class Action constructor(private val operation: Operation, private val path: String) {
+    private inner class Action constructor(private val operation: Operation, private val path: String) {
         fun apply() {
             val file = File(workDir, path)
             when (operation) {
                 Operation.CHANGE ->
-                    change(file.getAbsolutePath())
+                    change(file)
                 Operation.DELETE ->
                     assertTrue(file.delete(), "Can not delete file \"" + file.getAbsolutePath() + "\"")
                 else ->
