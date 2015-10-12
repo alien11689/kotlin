@@ -155,6 +155,13 @@ public class MethodInliner {
         RemappingMethodAdapter remappingMethodAdapter = new RemappingMethodAdapter(resultNode.access, resultNode.desc, resultNode,
                                                                                    new TypeRemapper(currentTypeMapping));
 
+        int markerShiftTemp = -1;
+        for (LocalVariableNode variable : node.localVariables) {
+            if (isFakeLocalVariableForInline(variable.name)) {
+                markerShiftTemp = Math.max(markerShiftTemp, variable.index + 1);
+            }
+        }
+        final int markerShift = InlineCodegenUtil.calcMarkerShift(parameters, node);
         InlineAdapter lambdaInliner = new InlineAdapter(remappingMethodAdapter, parameters.getArgsSizeOnStack(), sourceMapper) {
 
             private AnonymousObjectGeneration anonymousObjectGen;
@@ -217,7 +224,7 @@ public class MethodInliner {
                         return;
                     }
 
-                    int valueParamShift = getNextLocalIndex();//NB: don't inline cause it changes
+                    int valueParamShift = Math.max(getNextLocalIndex(), markerShift);//NB: don't inline cause it changes
                     putStackValuesIntoLocals(info.getInvokeParamsWithoutCaptured(), valueParamShift, this, desc);
 
                     addInlineMarker(this, true);
