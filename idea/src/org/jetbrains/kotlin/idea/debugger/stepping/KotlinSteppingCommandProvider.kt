@@ -172,6 +172,12 @@ public class KotlinSteppingCommandProvider: JvmSteppingCommandProvider() {
             }
         }
 
+        val whileParent = getParentOfType<JetWhileExpression>(false)
+        if (whileParent != null) {
+            // last statement in while
+            return (whileParent.body as? JetBlockExpression)?.statements?.lastOrNull()?.getLineNumber() == elementAt.getLineNumber()
+        }
+
         return false
     }
 
