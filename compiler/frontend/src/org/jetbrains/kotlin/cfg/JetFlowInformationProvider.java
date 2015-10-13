@@ -127,6 +127,8 @@ public class JetFlowInformationProvider {
         markUnusedExpressions();
 
         markWhenWithoutElse();
+
+        markImproperIfAsAnExpression();
     }
 
     public void checkFunction(@Nullable JetType expectedReturnType) {
@@ -753,6 +755,46 @@ public class JetFlowInformationProvider {
                         boolean isUsedAsExpression = !pseudocode.getUsages(value).isEmpty();
                         for (JetElement element : pseudocode.getValueElements(value)) {
                             trace.record(BindingContext.USED_AS_EXPRESSION, element, isUsedAsExpression);
+                        }
+                    }
+                }
+        );
+    }
+
+    public void markImproperIfAsAnExpression() {
+        PseudocodeTraverserKt.traverse(
+                pseudocode, FORWARD, new JetFlowInformationProvider.FunctionVoid1<Instruction>() {
+                    private boolean checkBlockExpression(JetExpression expression) {
+                        if (!(expression instanceof JetBlockExpression)) return false;
+                        return ((JetBlockExpression) expression).getStatements().isEmpty();
+                    }
+
+                    @Override
+                    public void execute(@NotNull Instruction instruction) {
+                        PseudoValue value = instruction instanceof InstructionWithValue
+                                            ? ((InstructionWithValue) instruction).getOutputValue()
+                                            : null;
+                        for (JetElement element : instruction.getOwner().getValueElements(value)) {
+                            if (!(element instanceof JetIfExpression)) continue;
+                            JetIfExpression ifExpression = (JetIfExpression) element;
+
+                            if (BindingContextUtilsKt.isUsedAsExpression((JetExpression) element, trace.getBindingContext())) {
+                                if (ifExpression.getParent() instanceof JetBlockExpression &&
+                                        ifExpression.getParent().getParent() instanceof JetFunctionLiteral) {
+                                    return;
+                                }
+
+                                boolean isWrong = ifExpression.getThen() == null || ifExpression.getElse() == null;
+
+                                if (!isWrong) {
+                                    isWrong = checkBlockExpression(ifExpression.getThen())
+                                           || checkBlockExpression(ifExpression.getElse());
+                                }
+
+                                if (isWrong) {
+                                    trace.report(INVALID_IF_AS_EXPRESSION.on(ifExpression));
+                                }
+                            }
                         }
                     }
                 }

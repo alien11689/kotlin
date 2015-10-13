@@ -68,11 +68,8 @@ fun blockAndAndMismatch5() : Int {
 fun blockReturnValueTypeMatch1() : Int {
   return if (1 > 2) <!CONSTANT_EXPECTED_TYPE_MISMATCH!>1.0<!> else <!CONSTANT_EXPECTED_TYPE_MISMATCH!>2.0<!>
 }
-fun blockReturnValueTypeMatch2() : Int {
-  return <!TYPE_MISMATCH!>if (1 > 2) 1<!>
-}
 fun blockReturnValueTypeMatch3() : Int {
-  return <!TYPE_MISMATCH!>if (1 > 2) else 1<!>
+  return <!TYPE_MISMATCH, INVALID_IF_AS_EXPRESSION!>if (1 > 2) else 1<!>
 }
 fun blockReturnValueTypeMatch4() : Int {
   if (1 > 2)
@@ -104,10 +101,6 @@ fun blockReturnValueTypeMatch9() : Int {
   if (1 > 2)
     <!UNUSED_EXPRESSION!>1.0<!>
 <!NO_RETURN_IN_FUNCTION_WITH_BLOCK_BODY!>}<!>
-fun blockReturnValueTypeMatch10() : Int {
-  return <!TYPE_MISMATCH!>if (1 > 2)
-    1<!>
-}
 fun blockReturnValueTypeMatch11() : Int {
   if (1 > 2)
   else <!UNUSED_EXPRESSION!>1.0<!>
@@ -133,8 +126,8 @@ fun blockNoReturnIfUnitInOneBranch(): Int {
     }
   }
 <!NO_RETURN_IN_FUNCTION_WITH_BLOCK_BODY!>}<!>
-fun nonBlockReturnIfEmptyIf(): Int = if (1 < 2) <!TYPE_MISMATCH!>{}<!> else <!TYPE_MISMATCH!>{}<!>
-fun nonBlockNoReturnIfUnitInOneBranch(): Int = if (1 < 2) <!TYPE_MISMATCH!>{}<!> else 2
+fun nonBlockReturnIfEmptyIf(): Int = <!INVALID_IF_AS_EXPRESSION!>if (1 < 2) <!TYPE_MISMATCH!>{}<!> else <!TYPE_MISMATCH!>{}<!><!>
+fun nonBlockNoReturnIfUnitInOneBranch(): Int = <!INVALID_IF_AS_EXPRESSION!>if (1 < 2) <!TYPE_MISMATCH!>{}<!> else 2<!>
 
 val a = <!RETURN_NOT_ALLOWED!>return 1<!>
 
