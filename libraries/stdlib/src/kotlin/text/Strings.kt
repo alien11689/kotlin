@@ -141,6 +141,9 @@ public fun CharSequence?.isNotEmpty(): Boolean = this != null && this.length() >
  */
 public fun CharSequence?.isNullOrEmpty(): Boolean = this == null || this.length() == 0
 
+@Deprecated("Generalized to CharSequence", level = DeprecationLevel.HIDDEN)
+public fun String.isEmpty(): Boolean = length() == 0
+
 /**
  * Returns `true` if this string is empty (contains no characters).
  */
