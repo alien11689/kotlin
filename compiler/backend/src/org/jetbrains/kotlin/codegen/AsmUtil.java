@@ -384,9 +384,6 @@ public class AsmUtil {
             return null;
         }
 
-        if (containingDeclaration instanceof PackageFragmentDescriptor) {
-            return NO_FLAG_PACKAGE_PRIVATE;
-        }
         return null;
     }
 

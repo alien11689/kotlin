@@ -93,4 +93,8 @@ public class MultifileClassPartCodegen(
         av.visit(JvmAnnotationNames.MULTIFILE_CLASS_NAME_FIELD_NAME, multifileClassType.internalName)
         av.visitEnd()
     }
+
+    override fun generateSyntheticParts() {
+        generateSyntheticAccessors()
+    }
 }
