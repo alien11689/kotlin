@@ -276,7 +276,7 @@ public abstract class AbstractQuickFixMultiFileTest extends KotlinDaemonAnalyzer
                         doAction(text, actionShouldBeAvailable, beforeFileName);
 
                         if (actionShouldBeAvailable) {
-                            checkResultByFile(testFullPath.replace(".before.Main.", ".after."));
+                            checkResultByFile(beforeFileName.replace(".before.Main.", ".after."));
 
                             PsiFile mainFile = myFile;
                             String mainFileName = mainFile.getName();
@@ -285,7 +285,7 @@ public abstract class AbstractQuickFixMultiFileTest extends KotlinDaemonAnalyzer
                                 if (fileName.equals(mainFileName) || !fileName.startsWith(extraFileNamePrefix(myFile.getName()))) continue;
 
                                 myFile = file;
-                                String extraFileFullPath = testFullPath.replace(mainFileName, fileName);
+                                String extraFileFullPath = beforeFileName.replace(mainFileName, fileName);
                                 try {
                                     checkResultByFile(extraFileFullPath.replace(".before.", ".after."));
                                 }
