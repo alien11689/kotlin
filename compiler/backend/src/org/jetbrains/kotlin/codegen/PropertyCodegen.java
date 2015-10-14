@@ -327,13 +327,11 @@ public class PropertyCodegen {
                 v.getSerializationBindings().put(STATIC_FIELD_IN_OUTER_CLASS, propertyDescriptor);
             }
 
-            if (isObject(propertyDescriptor.getContainingDeclaration())) {
-
-                if (!hasJvmFieldAnnotation &&
-                    !propertyDescriptor.isConst() &&
-                    getVisibilityForSpecialPropertyBackingField(propertyDescriptor, isDelegate) != ACC_PRIVATE) {
-                    modifiers |= ACC_DEPRECATED;
-                }
+            if (isObject(propertyDescriptor.getContainingDeclaration()) &&
+                !hasJvmFieldAnnotation &&
+                !propertyDescriptor.isConst() &&
+                (modifiers & ACC_PRIVATE) == 0) {
+                modifiers |= ACC_DEPRECATED;
             }
         }
         else if (takeVisibilityFromDescriptor) {
