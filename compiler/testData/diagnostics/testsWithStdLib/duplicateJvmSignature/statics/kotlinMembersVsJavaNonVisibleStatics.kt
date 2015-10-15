@@ -1,21 +1,22 @@
 // !DIAGNOSTICS: -UNUSED_PARAMETER
 
-// FILE: A.java
+// FILE: foo/A.java
+
+package foo;
 
 public class A {
-    public static void foo() {}
-    public static void baz(String s) {}
+    private static void foo(int s) {}
+    static void bar(double s) {}
 }
 
 // FILE: K.kt
+import foo.A
 
 open class K : A() {
     companion object {
-        <!ACCIDENTAL_OVERRIDE!>@JvmStatic
-        fun foo()<!> {}
         @JvmStatic
         fun foo(i: Int) {}
         @JvmStatic
-        fun baz(i: Int) {}
+        fun bar(d: Double) {}
     }
 }

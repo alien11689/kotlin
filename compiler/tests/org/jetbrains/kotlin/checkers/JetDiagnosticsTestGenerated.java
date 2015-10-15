@@ -5248,6 +5248,12 @@ public class JetDiagnosticsTestGenerated extends AbstractJetDiagnosticsTest {
                     String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/duplicateJvmSignature/statics/jkjk.kt");
                     doTest(fileName);
                 }
+
+                @TestMetadata("kotlinMembersVsJavaNonVisibleStatics.kt")
+                public void testKotlinMembersVsJavaNonVisibleStatics() throws Exception {
+                    String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/duplicateJvmSignature/statics/kotlinMembersVsJavaNonVisibleStatics.kt");
+                    doTest(fileName);
+                }
             }
 
             @TestMetadata("compiler/testData/diagnostics/tests/duplicateJvmSignature/synthesized")
