@@ -1,39 +1,27 @@
 // !DIAGNOSTICS: -UNUSED_VARIABLE
 
-// FILE: A.kt
-
 open class A {
     class NC {}
     inner class IC {}
     interface NI {}
 }
 
-// FILE: I.kt
-
 interface I {
     class NC {}
     interface NI {}
 }
 
-// FILE: B.kt
-
 class B : A() {
 
 }
-
-// FILE: C.kt
 
 class C : I {
 
 }
 
-// FILE: D.kt
-
 class D : A(), I {
 
 }
-
-// FILE: test.kt
 
 fun test() {
     val ac: A.NC = A.NC()
@@ -48,7 +36,6 @@ fun test() {
     val bi: B.<!UNRESOLVED_REFERENCE!>NI<!>? = null
 
     val cc: C.<!UNRESOLVED_REFERENCE!>NC<!> = C.<!UNRESOLVED_REFERENCE!>NC<!>()
-    val cic: C.<!UNRESOLVED_REFERENCE!>IC<!> = C().<!UNRESOLVED_REFERENCE!>IC<!>()
     val ci: C.<!UNRESOLVED_REFERENCE!>NI<!>? = null
 
     val dc: D.<!UNRESOLVED_REFERENCE!>NC<!> = D.<!UNRESOLVED_REFERENCE!>NC<!>()

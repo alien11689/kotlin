@@ -39,7 +39,6 @@ class K : D()
 
 // FILE: test.kt
 
-
 fun test() {
     val ac: A.NC = A.NC()
     val aic: A.IC = A().IC()
@@ -53,7 +52,6 @@ fun test() {
     val bi: B.<!UNRESOLVED_REFERENCE!>NI<!>? = null
 
     val cc: C.<!UNRESOLVED_REFERENCE!>NC<!> = C.<!UNRESOLVED_REFERENCE!>NC<!>()
-    val cic: C.<!UNRESOLVED_REFERENCE!>IC<!> = C().<!UNRESOLVED_REFERENCE!>IC<!>()
     val ci: C.<!UNRESOLVED_REFERENCE!>NI<!>? = null
 
     val dc: D.<!UNRESOLVED_REFERENCE!>NC<!> = D.<!UNRESOLVED_REFERENCE!>NC<!>()
