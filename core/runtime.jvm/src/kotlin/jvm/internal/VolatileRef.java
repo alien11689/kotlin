@@ -16,11 +16,11 @@
 
 package kotlin.jvm.internal;
 
-public class Ref {
-    private Ref() {}
+public class VolatileRef {
+    private VolatileRef() {}
 
     public static final class ObjectRef<T> {
-        public T element;
+        public volatile T element;
 
         @Override
         public String toString() {
@@ -29,7 +29,7 @@ public class Ref {
     }
 
     public static final class ByteRef {
-        public byte element;
+        public volatile byte element;
 
         @Override
         public String toString() {
@@ -38,7 +38,7 @@ public class Ref {
     }
 
     public static final class ShortRef {
-        public short element;
+        public volatile short element;
 
         @Override
         public String toString() {
@@ -47,7 +47,7 @@ public class Ref {
     }
 
     public static final class IntRef {
-        public int element;
+        public volatile int element;
 
         @Override
         public String toString() {
@@ -56,7 +56,7 @@ public class Ref {
     }
 
     public static final class LongRef {
-        public long element;
+        public volatile long element;
 
         @Override
         public String toString() {
@@ -65,7 +65,7 @@ public class Ref {
     }
 
     public static final class FloatRef {
-        public float element;
+        public volatile float element;
 
         @Override
         public String toString() {
@@ -74,7 +74,7 @@ public class Ref {
     }
 
     public static final class DoubleRef {
-        public double element;
+        public volatile double element;
 
         @Override
         public String toString() {
@@ -83,7 +83,7 @@ public class Ref {
     }
 
     public static final class CharRef {
-        public char element;
+        public volatile char element;
 
         @Override
         public String toString() {
@@ -92,7 +92,7 @@ public class Ref {
     }
 
     public static final class BooleanRef {
-        public boolean element;
+        public volatile boolean element;
 
         @Override
         public String toString() {
