@@ -146,7 +146,7 @@ public class JavaElementFinder extends PsiElementFinder implements KotlinFinderM
     }
 
     private void findInterfaceDefaultImpls(FqName qualifiedName, GlobalSearchScope scope, List<PsiClass> answer) {
-        if (!qualifiedName.shortName().asString().equals(JvmAbi.DEFAULT_IMPLS_CLASS_NAME)) return;
+        if (!FqNamesUtilKt.shortNameEqualsTo(qualifiedName, JvmAbi.DEFAULT_IMPLS_CLASS_NAME)) return;
 
         for (JetClassOrObject classOrObject : lightClassGenerationSupport.findClassOrObjectDeclarations(qualifiedName.parent(), scope)) {
             if (LightClassUtilsKt.getHasInterfaceDefaultImpls(classOrObject)) {

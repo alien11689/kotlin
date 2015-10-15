@@ -47,6 +47,8 @@ public fun FqName.tail(prefix: FqName): FqName {
     }
 }
 
+fun FqName.shortNameEqualsTo(name: String) = !isRoot && shortName().asString() == name
+
 private enum class State {
     BEGINNING,
     MIDDLE,
