@@ -148,6 +148,8 @@ public open class JetPsiChecker : Annotator, HighlightRangeExtension {
 
         private fun setUpAnnotations(diagnostics: List<Diagnostic>, data: AnnotationPresentationInfo) {
             val fixes = createQuickFixes(diagnostics)
+            val annotations = diagnostics.forEach {  }
+
             fixes.distinctBy {  }
 
             for (range in data.ranges) {
