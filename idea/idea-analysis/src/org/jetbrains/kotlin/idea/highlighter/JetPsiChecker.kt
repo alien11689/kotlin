@@ -97,6 +97,8 @@ public open class JetPsiChecker : Annotator, HighlightRangeExtension {
 
             assert(diagnostics.all { it.getPsiElement() == element && it.factory == factory })
 
+            val ranges = diagnostic.textRanges
+
             val presentationInfo: AnnotationPresentationInfo = when (factory.severity) {
                 Severity.ERROR -> {
                     when (factory) {
@@ -104,22 +106,23 @@ public open class JetPsiChecker : Annotator, HighlightRangeExtension {
                             val referenceExpression = element as JetReferenceExpression
                             val reference = referenceExpression.mainReference
                             if (reference is MultiRangeReference) {
-                                AnnotationPresentationInfo(diagnostic,
+                                AnnotationPresentationInfo(
                                         ranges = reference.getRanges().map { it.shiftRight(referenceExpression.getTextOffset()) },
                                         highlightType = ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
                             }
                             else {
-                                AnnotationPresentationInfo(diagnostic, highlightType = ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
+                                AnnotationPresentationInfo(ranges, highlightType = ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
                             }
                         }
 
-                        Errors.ILLEGAL_ESCAPE -> AnnotationPresentationInfo(diagnostic, textAttributes = JetHighlightingColors.INVALID_STRING_ESCAPE)
+                        Errors.ILLEGAL_ESCAPE -> AnnotationPresentationInfo(ranges, textAttributes = JetHighlightingColors.INVALID_STRING_ESCAPE)
 
                         Errors.REDECLARATION -> AnnotationPresentationInfo(
-                                diagnostic, ranges = listOf(diagnostic.getTextRanges().first()), defaultMessage = "")
+                                ranges = listOf(diagnostic.getTextRanges().first()), nonDefaultMessage = "")
 
                         else -> {
-                            AnnotationPresentationInfo(diagnostic,
+                            AnnotationPresentationInfo(
+                                    ranges,
                                     highlightType = if (factory == Errors.INVISIBLE_REFERENCE)
                                         ProblemHighlightType.LIKE_UNKNOWN_SYMBOL
                                     else
@@ -132,7 +135,8 @@ public open class JetPsiChecker : Annotator, HighlightRangeExtension {
                         return
                     }
 
-                    AnnotationPresentationInfo(diagnostic,
+                    AnnotationPresentationInfo(
+                            ranges,
                             textAttributes = if (factory == Errors.DEPRECATION) CodeInsightColors.DEPRECATED_ATTRIBUTES else null,
                             highlightType = if (factory in Errors.UNUSED_ELEMENT_DIAGNOSTICS)
                                 ProblemHighlightType.LIKE_UNUSED_SYMBOL
@@ -163,7 +167,7 @@ public open class JetPsiChecker : Annotator, HighlightRangeExtension {
             val fixes = createQuickFixes(diagnostics)
 
             val annotations = diagnostics.map { diagnostic ->
-                val annotation = data.create(range, holder)
+                val annotation = data.create(diagnostic, range, holder)
 
                 createQuickFixes(diagnostic, processedFactories).forEach { annotation.registerFix(it) }
 
@@ -188,61 +192,6 @@ public open class JetPsiChecker : Annotator, HighlightRangeExtension {
     }
 
     companion object {
-        private fun getMessage(diagnostic: Diagnostic): String {
-            var message = IdeErrorMessages.render(diagnostic)
-            if (KotlinInternalMode.enabled || ApplicationManager.getApplication().isUnitTestMode()) {
-                val factoryName = diagnostic.getFactory().getName()
-                if (message.startsWith("<html>")) {
-                    message = "<html>[$factoryName] ${message.substring("<html>".length())}"
-                }
-                else {
-                    message = "[$factoryName] $message"
-                }
-            }
-            if (!message.startsWith("<html>")) {
-                message = "<html><body>${XmlStringUtil.escapeString(message)}</body></html>"
-            }
-            return message
-        }
-
-        private fun getDefaultMessage(diagnostic: Diagnostic): String {
-            val message = DefaultErrorMessages.render(diagnostic)
-            if (KotlinInternalMode.enabled || ApplicationManager.getApplication().isUnitTestMode()) {
-                return "[${diagnostic.getFactory().getName()}] $message"
-            }
-            return message
-        }
-
-        private class AnnotationPresentationInfo(
-                diagnostic: Diagnostic,
-                val severity: Severity = diagnostic.severity,
-                val ranges: List<TextRange> = diagnostic.textRanges,
-                val defaultMessage: String = getDefaultMessage(diagnostic),
-                val tooltip: String = getMessage(diagnostic),
-                val highlightType: ProblemHighlightType? = null,
-                val textAttributes: TextAttributesKey? = null) {
-
-            public fun create(range: TextRange, holder: AnnotationHolder): Annotation {
-                val annotation = when (severity) {
-                    Severity.ERROR -> holder.createErrorAnnotation(range, defaultMessage)
-                    Severity.WARNING -> holder.createWarningAnnotation(range, defaultMessage)
-                    else -> throw IllegalArgumentException("Only ERROR and WARNING diagnostics are supported")
-                }
-
-                annotation.tooltip = tooltip
-
-                if (highlightType != null) {
-                    annotation.highlightType = highlightType
-                }
-
-                if (textAttributes != null) {
-                    annotation.textAttributes = textAttributes
-                }
-
-                return annotation
-            }
-        }
-
         private fun getAfterAnalysisVisitor(holder: AnnotationHolder, bindingContext: BindingContext) = arrayOf(
                 PropertiesHighlightingVisitor(holder, bindingContext),
                 FunctionsHighlightingVisitor(holder, bindingContext),
@@ -280,5 +229,59 @@ public open class JetPsiChecker : Annotator, HighlightRangeExtension {
         }
 
         private class IntentionActionWithApplicability(val action: IntentionAction, val applyToAll: Boolean)
+    }
+}
+
+private class AnnotationPresentationInfo(
+        val ranges: List<TextRange>,
+        val nonDefaultMessage: String? = null,
+        val highlightType: ProblemHighlightType? = null,
+        val textAttributes: TextAttributesKey? = null) {
+
+    public fun create(diagnostic: Diagnostic, range: TextRange, holder: AnnotationHolder): Annotation {
+        val defaultMessage = nonDefaultMessage?: getDefaultMessage(diagnostic)
+
+        val annotation = when (diagnostic.severity) {
+            Severity.ERROR -> holder.createErrorAnnotation(range, defaultMessage)
+            Severity.WARNING -> holder.createWarningAnnotation(range, defaultMessage)
+            else -> throw IllegalArgumentException("Only ERROR and WARNING diagnostics are supported")
+        }
+
+        annotation.tooltip = getMessage(diagnostic)
+
+        if (highlightType != null) {
+            annotation.highlightType = highlightType
+        }
+
+        if (textAttributes != null) {
+            annotation.textAttributes = textAttributes
+        }
+
+        return annotation
+    }
+
+    private fun getMessage(diagnostic: Diagnostic): String {
+        var message = IdeErrorMessages.render(diagnostic)
+        if (KotlinInternalMode.enabled || ApplicationManager.getApplication().isUnitTestMode()) {
+            val factoryName = diagnostic.getFactory().getName()
+            if (message.startsWith("<html>")) {
+                message = "<html>[$factoryName] ${message.substring("<html>".length())}"
+            }
+            else {
+                message = "[$factoryName] $message"
+            }
+        }
+        if (!message.startsWith("<html>")) {
+            message = "<html><body>${XmlStringUtil.escapeString(message)}</body></html>"
+        }
+        return message
+    }
+
+    private fun getDefaultMessage(diagnostic: Diagnostic): String {
+        val message = DefaultErrorMessages.render(diagnostic)
+        if (KotlinInternalMode.enabled || ApplicationManager.getApplication().isUnitTestMode()) {
+            return "[${diagnostic.getFactory().getName()}] $message"
+        }
+        return message
     }
 }
