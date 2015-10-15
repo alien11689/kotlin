@@ -79,14 +79,16 @@ public class KotlinMemberInfoStorage(
                           && !(it is JetObjectDeclaration && it.isCompanion())
                           && myFilter.includeMember(it) }
                 .mapTo(temp) { KotlinMemberInfo(it as JetNamedDeclaration) }
-        aClass.getDelegationSpecifiers()
-                .filterIsInstance<JetDelegatorToSuperClass>()
-                .map {
-                    val type = context[BindingContext.TYPE, it.typeReference]
-                    val classDescriptor = type?.constructor?.declarationDescriptor as? ClassDescriptor
-                    classDescriptor?.source?.getPsi() as? JetClass
-                }
-                .filter { it != null && it.isInterface() }
-                .mapTo(temp) { KotlinMemberInfo(it!!, true) }
+        if (aClass == myClass) {
+            aClass.getDelegationSpecifiers()
+                    .filterIsInstance<JetDelegatorToSuperClass>()
+                    .map {
+                        val type = context[BindingContext.TYPE, it.typeReference]
+                        val classDescriptor = type?.constructor?.declarationDescriptor as? ClassDescriptor
+                        classDescriptor?.source?.getPsi() as? JetClass
+                    }
+                    .filter { it != null && it.isInterface() }
+                    .mapTo(temp) { KotlinMemberInfo(it!!, true) }
+        }
     }
 }

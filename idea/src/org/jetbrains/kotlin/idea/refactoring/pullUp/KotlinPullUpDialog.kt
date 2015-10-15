@@ -26,6 +26,7 @@ import com.intellij.refactoring.classMembers.AbstractMemberInfoModel
 import com.intellij.refactoring.memberPullUp.PullUpProcessor
 import com.intellij.refactoring.util.DocCommentPolicy
 import org.jetbrains.kotlin.asJava.toLightClass
+import org.jetbrains.kotlin.idea.core.refactoring.isInterfaceClass
 import org.jetbrains.kotlin.idea.refactoring.memberInfo.*
 import org.jetbrains.kotlin.psi.*
 
@@ -39,6 +40,8 @@ public class KotlinPullUpDialog(
 ) {
     init {
         init()
+
+
     }
 
     private inner class MemberInfoModelImpl : AbstractMemberInfoModel<JetNamedDeclaration, KotlinMemberInfo>() {
@@ -89,7 +92,7 @@ public class KotlinPullUpDialog(
 
     override fun createMemberInfoModel() = MemberInfoModelImpl()
 
-    override fun getPreselection() = mySuperClasses.firstOrNull()
+    override fun getPreselection() = mySuperClasses.firstOrNull { !it.isInterfaceClass() } ?: mySuperClasses.firstOrNull()
 
     override fun createMemberSelectionTable(infos: MutableList<KotlinMemberInfo>) =
             KotlinMemberSelectionTable(infos, null, "Make abstract")

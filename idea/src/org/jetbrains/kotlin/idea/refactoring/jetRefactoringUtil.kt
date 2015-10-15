@@ -710,3 +710,5 @@ public fun JetClass.createPrimaryConstructorParameterListIfAbsent(): JetParamete
     if (parameterList != null) return parameterList
     return constructor.add(JetPsiFactory(project).createParameterList("()")) as JetParameterList
 }
+
+fun PsiNamedElement.isInterfaceClass(): Boolean = this is JetClass && isInterface() || this is PsiClass && isInterface
