@@ -761,14 +761,15 @@ public class KotlinJpsBuildTest : AbstractKotlinJpsBuildTestCase() {
 
     private fun del(path: String): Action = Action(Operation.DELETE, path)
 
-    private fun change(file: File): Unit = JpsBuildTestCase.change(file.absolutePath)
+    // TODO inline after KT-3974 will be fixed
+    private fun touch(file: File): Unit = JpsBuildTestCase.change(file.absolutePath)
 
     private inner class Action constructor(private val operation: Operation, private val path: String) {
         fun apply() {
             val file = File(workDir, path)
             when (operation) {
                 Operation.CHANGE ->
-                    change(file)
+                    touch(file)
                 Operation.DELETE ->
                     assertTrue(file.delete(), "Can not delete file \"" + file.getAbsolutePath() + "\"")
                 else ->
