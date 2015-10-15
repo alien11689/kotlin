@@ -41,10 +41,9 @@ fun box(): String {
     assertEquals(listOf("Entry"), nestedNames(MutableMap::class))
 
     // Primitives
-    for (primitive in listOf(Byte::class, Double::class, Float::class, Int::class, Long::class, Short::class, Char::class)) {
+    for (primitive in listOf(Boolean::class, Byte::class, Double::class, Float::class, Int::class, Long::class, Short::class, Char::class)) {
         assertEquals(listOf("Companion"), nestedNames(primitive))
     }
-    assertEquals(emptyList<String>(), nestedNames(Boolean::class))
 
     // Primitive arrays
     for (primitiveArray in listOf(

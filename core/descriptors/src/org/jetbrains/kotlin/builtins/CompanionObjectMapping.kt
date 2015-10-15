@@ -24,11 +24,11 @@ public class CompanionObjectMapping(private val builtIns: KotlinBuiltIns) {
     private val classes = linkedSetOf<ClassDescriptor>()
 
     init {
-        for (type in PrimitiveType.NUMBER_TYPES) {
+        for (type in PrimitiveType.values()) {
             classes.add(builtIns.getPrimitiveClassDescriptor(type))
         }
-        classes.add(builtIns.getString())
-        classes.add(builtIns.getEnum())
+        classes.add(builtIns.string)
+        classes.add(builtIns.enum)
     }
 
     public fun allClassesWithIntrinsicCompanions(): Set<ClassDescriptor> =
@@ -36,6 +36,6 @@ public class CompanionObjectMapping(private val builtIns: KotlinBuiltIns) {
 
     public fun hasMappingToObject(classDescriptor: ClassDescriptor): Boolean {
         return DescriptorUtils.isCompanionObject(classDescriptor) &&
-               classDescriptor.getContainingDeclaration() in classes
+               classDescriptor.containingDeclaration in classes
     }
 }

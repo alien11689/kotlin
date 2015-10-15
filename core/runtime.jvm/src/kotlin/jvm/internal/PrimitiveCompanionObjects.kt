@@ -52,8 +52,9 @@ private object ByteCompanionObject : IntegerConstants<Byte> {
     override val MAX_VALUE: Byte = java.lang.Byte.MAX_VALUE
 }
 
+private object BooleanCompanionObject
 
-private object CharCompanionObject {}
+private object CharCompanionObject
 
-private object StringCompanionObject {}
-private object EnumCompanionObject {}
+private object StringCompanionObject
+private object EnumCompanionObject
