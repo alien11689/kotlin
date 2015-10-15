@@ -26,11 +26,8 @@ import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor.Kind.DELEGATION
 import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor.Kind.FAKE_OVERRIDE
 import org.jetbrains.kotlin.diagnostics.DiagnosticSink
 import org.jetbrains.kotlin.fileClasses.JvmFileClassesProvider
-import org.jetbrains.kotlin.fileClasses.isInsideJvmMultifileClassFile
-import org.jetbrains.kotlin.idea.MainFunctionDetector
 import org.jetbrains.kotlin.load.java.descriptors.SamAdapterDescriptor
 import org.jetbrains.kotlin.load.kotlin.incremental.components.IncrementalCache
-import org.jetbrains.kotlin.psi.JetNamedFunction
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.DescriptorToSourceUtils
 import org.jetbrains.kotlin.resolve.jvm.diagnostics.*
@@ -54,8 +51,6 @@ class BuilderFactoryForDuplicateSignatureDiagnostics(
     // Avoid errors when some classes are not loaded for some reason
     private val typeMapper = JetTypeMapper(bindingContext, ClassBuilderMode.LIGHT_CLASSES, fileClassesProvider, incrementalCache, moduleName)
 
-    private val mainFunctionDetector = MainFunctionDetector(bindingContext)
-
     override fun handleClashingSignatures(data: ConflictingJvmDeclarationsData) {
         val noOwnImplementations = data.signatureOrigins.all { it.originKind in EXTERNAL_SOURCES_KINDS }
 
@@ -66,9 +61,6 @@ class BuilderFactoryForDuplicateSignatureDiagnostics(
         else {
             for (origin in data.signatureOrigins) {
                 var element = origin.element
-
-                // TODO Remove this code after dropping package facades
-                if (element is JetNamedFunction && mainFunctionDetector.isMain(element) && !element.isInsideJvmMultifileClassFile()) return
 
                 if (element == null || origin.originKind in EXTERNAL_SOURCES_KINDS) {
                     element = data.classOrigin.element
