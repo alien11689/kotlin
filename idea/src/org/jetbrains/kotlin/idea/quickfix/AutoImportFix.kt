@@ -298,8 +298,7 @@ class MissingDelegateAccessorsAutoImportFix(element: JetExpression, diagnostics:
             return MissingDelegateAccessorsAutoImportFix(diagnostic.psiElement as JetExpression, listOf(diagnostic))
         }
 
-        override fun canFixSeveralSameProblems(): Boolean = true
-        override fun doCreateActionsForAllProblems(sameTypeDiagnostics: List<Diagnostic>): List<IntentionAction> {
+        override fun doCreateActionsForAllProblems(sameTypeDiagnostics: Collection<Diagnostic>): List<IntentionAction> {
             val first = sameTypeDiagnostics.first()
             val element = first.psiElement
 
@@ -329,8 +328,7 @@ class MissingComponentsAutoImportFix(element: JetExpression, diagnostics: Collec
             return MissingComponentsAutoImportFix(diagnostic.psiElement as JetExpression, listOf(diagnostic))
         }
 
-        override fun canFixSeveralSameProblems(): Boolean = true
-        override fun doCreateActionsForAllProblems(sameTypeDiagnostics: List<Diagnostic>): List<IntentionAction> {
+        override fun doCreateActionsForAllProblems(sameTypeDiagnostics: Collection<Diagnostic>): List<IntentionAction> {
             val first = sameTypeDiagnostics.first()
             val element = first.psiElement
 

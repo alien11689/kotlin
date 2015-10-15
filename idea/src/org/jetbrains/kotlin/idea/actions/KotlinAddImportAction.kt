@@ -97,10 +97,10 @@ public class KotlinAddImportAction(
     }
 
     private val variants: List<SingleImportVariant> =
-            candidates
-                    .groupBy { it.importableFqName?.parentOrNull() ?: FqName.ROOT }
-                    .filter { it.value.all { candidate -> isComponentLike(candidate.name) } }
-                    .map { SingleImportVariant(it.key.parentOrNull() ?: FqName.ROOT, it.value, true) } +
+//            candidates
+//                    .groupBy { it.importableFqName?.parentOrNull() ?: FqName.ROOT }
+//                    .filter { it.value.all { candidate -> isComponentLike(candidate.name) } }
+//                    .map { SingleImportVariant(it.key.parentOrNull() ?: FqName.ROOT, it.value, true) } +
             candidates
                     .groupBy { it.importableFqName!! }
                     .map { SingleImportVariant(it.key, it.value) }

@@ -20,7 +20,6 @@ import com.intellij.codeInsight.intention.IntentionAction
 import org.jetbrains.kotlin.diagnostics.Diagnostic
 import org.jetbrains.kotlin.psi.JetCodeFragment
 import org.jetbrains.kotlin.utils.singletonOrEmptyList
-import java.util.Collections
 
 public abstract class JetIntentionActionsFactory {
     protected open fun isApplicableForCodeFragment(): Boolean = false
@@ -28,7 +27,7 @@ public abstract class JetIntentionActionsFactory {
     protected abstract fun doCreateActions(diagnostic: Diagnostic): List<IntentionAction>
 
     protected open fun doCreateActionsForAllProblems(
-            @Suppress("UNUSED_PARAMETER") sameTypeDiagnostics: List<Diagnostic>): List<IntentionAction> = emptyList()
+            @Suppress("UNUSED_PARAMETER") sameTypeDiagnostics: Collection<Diagnostic>): List<IntentionAction> = emptyList()
 
     public fun createActions(diagnostic: Diagnostic): List<IntentionAction> =
             createActions(diagnostic.singletonOrEmptyList(), false)
