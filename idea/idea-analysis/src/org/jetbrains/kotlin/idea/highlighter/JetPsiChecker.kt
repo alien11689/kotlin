@@ -48,6 +48,7 @@ import org.jetbrains.kotlin.psi.JetParameter
 import org.jetbrains.kotlin.psi.JetReferenceExpression
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.diagnostics.Diagnostics
+import org.jetbrains.kotlin.utils.singletonOrEmptyList
 
 public open class JetPsiChecker : Annotator, HighlightRangeExtension {
 
@@ -146,18 +147,23 @@ public open class JetPsiChecker : Annotator, HighlightRangeExtension {
         }
 
         private fun setUpAnnotations(diagnostics: List<Diagnostic>, data: AnnotationPresentationInfo) {
+            val fixes = createQuickFixes(diagnostics)
+            fixes.distinctBy {  }
+
             for (range in data.ranges) {
                 registerQuickFixes(diagnostics, range, data)
+
+
             }
         }
 
-        fun registerQuickFixes(diagnostics: List<Diagnostic>, range: TextRange, data: AnnotationPresentationInfo) {
-            val (multiFixes, processedFactories) = createQuickFixesForSameTypeDiagnostics(diagnostics)
+        private fun registerQuickFixes(diagnostics: List<Diagnostic>, range: TextRange, data: AnnotationPresentationInfo) {
+            val fixes = createQuickFixes(diagnostics)
 
             val annotations = diagnostics.map { diagnostic ->
                 val annotation = data.create(range, holder)
 
-                createQuickfixes(diagnostic, processedFactories).forEach { annotation.registerFix(it) }
+                createQuickFixes(diagnostic, processedFactories).forEach { annotation.registerFix(it) }
 
                 // Making warnings suppressable
                 if (diagnostic.getSeverity() == Severity.WARNING) {
@@ -176,25 +182,6 @@ public open class JetPsiChecker : Annotator, HighlightRangeExtension {
             // Always register all group fixes on the same annotation
             val firstAnnotation = annotations.minBy { it.message }!!
             multiFixes.forEach { fix -> firstAnnotation.registerFix(fix) }
-        }
-
-        private fun createQuickFixesForSameTypeDiagnostics(diagnostics: List<Diagnostic>):
-                Pair<Collection<IntentionAction>, Collection<JetIntentionActionsFactory>> {
-            val factory = diagnostics.first().factory
-            val sameProblemsFixesFactories = QuickFixes.getInstance().getActionFactories(factory).filter { it.canFixSeveralSameProblems() }
-
-            val processedFactories = hashSetOf<JetIntentionActionsFactory>()
-            val fixActions = arrayListOf<IntentionAction>()
-
-            for (actionFactory in sameProblemsFixesFactories) {
-                val actions = actionFactory.createActions(diagnostics)
-                if (actions.isNotEmpty()) {
-                    processedFactories.add(actionFactory)
-                    fixActions.addAll(actions)
-                }
-            }
-
-            return Pair(fixActions, processedFactories)
         }
     }
 
@@ -261,16 +248,35 @@ public open class JetPsiChecker : Annotator, HighlightRangeExtension {
                 TypeKindHighlightingVisitor(holder, bindingContext)
         )
 
-        public fun createQuickfixes(
-                diagnostic: Diagnostic,
-                excludedFactories : Collection<JetIntentionActionsFactory> = emptySet<JetIntentionActionsFactory>()): Collection<IntentionAction> {
-            val result = arrayListOf<IntentionAction>()
-            val intentionActionsFactories = QuickFixes.getInstance().getActionFactories(diagnostic.getFactory()) - excludedFactories
+        public fun createQuickFixes(diagnostic: Diagnostic): Collection<IntentionAction> =
+                createQuickFixes(diagnostic.singletonOrEmptyList()).map { it.action }
+
+        private fun createQuickFixes(similarDiagnostics: Collection<Diagnostic>): Collection<IntentionActionWithApplicability> {
+            val factory = similarDiagnostics.first().factory
+
+            val actions = arrayListOf<IntentionActionWithApplicability>()
+
+            val intentionActionsFactories = QuickFixes.getInstance().getActionFactories(factory)
             for (intentionActionsFactory in intentionActionsFactories.filterNotNull()) {
-                result.addAll(intentionActionsFactory.createActions(diagnostic))
+                val allProblemsActions = intentionActionsFactory.createActionsForAllProblems(similarDiagnostics)
+                if (!allProblemsActions.isEmpty()) {
+                    actions.addAll(allProblemsActions.map { IntentionActionWithApplicability(it, true) })
+                }
+                else {
+                    for (diagnostic in similarDiagnostics) {
+                        actions.addAll(intentionActionsFactory.createActions(diagnostic).map { IntentionActionWithApplicability(it, false) })
+                    }
+                }
+
             }
-            result.addAll(QuickFixes.getInstance().getActions(diagnostic.getFactory()))
-            return result
+
+            for (diagnostic in similarDiagnostics) {
+                actions.addAll(QuickFixes.getInstance().getActions(diagnostic.getFactory()).map { IntentionActionWithApplicability(it, false) })
+            }
+
+            return actions
         }
+
+        private class IntentionActionWithApplicability(val action: IntentionAction, val applyToAll: Boolean)
     }
 }
