@@ -59,6 +59,7 @@ import com.intellij.util.containers.MultiMap
 import org.jetbrains.kotlin.asJava.KotlinLightMethod
 import org.jetbrains.kotlin.asJava.LightClassUtil
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
+import org.jetbrains.kotlin.descriptors.CallableDescriptor
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.descriptors.FunctionDescriptor
@@ -73,6 +74,7 @@ import org.jetbrains.kotlin.idea.util.ProjectRootsUtil
 import org.jetbrains.kotlin.idea.util.string.collapseSpaces
 import org.jetbrains.kotlin.j2k.ConverterSettings
 import org.jetbrains.kotlin.j2k.JavaToKotlinConverter
+import org.jetbrains.kotlin.lexer.JetTokens
 import org.jetbrains.kotlin.name.FqNameBase
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.codeFragmentUtil.suppressDiagnosticsInDebugMode
@@ -712,3 +714,10 @@ public fun JetClass.createPrimaryConstructorParameterListIfAbsent(): JetParamete
 }
 
 fun PsiNamedElement.isInterfaceClass(): Boolean = this is JetClass && isInterface() || this is PsiClass && isInterface
+
+fun dropOverrideKeywordIfNecessary(element: JetNamedDeclaration) {
+    val callableDescriptor = element.resolveToDescriptor() as? CallableDescriptor ?: return
+    if (callableDescriptor.overriddenDescriptors.isEmpty()) {
+        element.removeModifier(JetTokens.OVERRIDE_KEYWORD)
+    }
+}

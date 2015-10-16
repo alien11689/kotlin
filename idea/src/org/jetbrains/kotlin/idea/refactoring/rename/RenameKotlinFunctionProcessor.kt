@@ -26,6 +26,7 @@ import com.intellij.usageView.UsageInfo
 import org.jetbrains.kotlin.asJava.KotlinLightMethod
 import org.jetbrains.kotlin.asJava.LightClassUtil
 import org.jetbrains.kotlin.asJava.unwrapped
+import org.jetbrains.kotlin.idea.core.refactoring.dropOverrideKeywordIfNecessary
 import org.jetbrains.kotlin.idea.util.application.runReadAction
 import org.jetbrains.kotlin.psi.JetFunction
 import org.jetbrains.kotlin.psi.JetNamedDeclaration

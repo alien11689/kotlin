@@ -35,6 +35,7 @@ import org.jetbrains.kotlin.idea.caches.resolve.ResolutionUtils;
 import org.jetbrains.kotlin.idea.codeInsight.shorten.ShortenWaitingSetKt;
 import org.jetbrains.kotlin.idea.core.DescriptorUtilsKt;
 import org.jetbrains.kotlin.idea.core.PsiModificationUtilsKt;
+import org.jetbrains.kotlin.idea.core.refactoring.JetRefactoringUtilKt;
 import org.jetbrains.kotlin.idea.refactoring.changeSignature.ChangeSignatureUtilsKt;
 import org.jetbrains.kotlin.idea.refactoring.changeSignature.JetChangeInfo;
 import org.jetbrains.kotlin.idea.refactoring.changeSignature.JetParameterInfo;
@@ -215,6 +216,8 @@ public class JetCallableDefinitionUsage<T extends PsiElement> extends JetUsageIn
         if (changeInfo.isVisibilityChanged() && !JetPsiUtil.isLocal((JetDeclaration) element)) {
             changeVisibility(changeInfo, element);
         }
+
+        JetRefactoringUtilKt.dropOverrideKeywordIfNecessary((JetNamedDeclaration) element);
 
         return true;
     }

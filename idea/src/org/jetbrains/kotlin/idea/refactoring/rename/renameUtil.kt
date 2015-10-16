@@ -17,16 +17,12 @@
 package org.jetbrains.kotlin.idea.refactoring.rename
 
 import com.intellij.psi.PsiElement
-import com.intellij.usageView.UsageInfo
-import java.util.ArrayList
-import com.intellij.refactoring.util.MoveRenameUsageInfo
 import com.intellij.refactoring.rename.UnresolvableCollisionUsageInfo
-import org.jetbrains.kotlin.descriptors.CallableDescriptor
-import org.jetbrains.kotlin.idea.caches.resolve.resolveToDescriptor
+import com.intellij.refactoring.util.MoveRenameUsageInfo
+import com.intellij.usageView.UsageInfo
 import org.jetbrains.kotlin.idea.refactoring.JetRefactoringBundle
 import org.jetbrains.kotlin.idea.references.AbstractJetReference
-import org.jetbrains.kotlin.lexer.JetTokens
-import org.jetbrains.kotlin.psi.JetNamedDeclaration
+import java.util.*
 
 fun checkConflictsAndReplaceUsageInfos(result: MutableList<UsageInfo>) {
     val usagesToAdd = ArrayList<UsageInfo>()
@@ -53,10 +49,4 @@ class UnresolvableConventionViolationUsageInfo(
         referencedElement: PsiElement
 ) : UnresolvableCollisionUsageInfo(element, referencedElement) {
     override fun getDescription(): String = JetRefactoringBundle.message("naming.convention.will.be.violated.after.rename")
-}
-
-fun dropOverrideKeywordIfNecessary(element: JetNamedDeclaration) {
-    if ((element.resolveToDescriptor() as CallableDescriptor).overriddenDescriptors.isEmpty()) {
-        element.removeModifier(JetTokens.OVERRIDE_KEYWORD)
-    }
 }
