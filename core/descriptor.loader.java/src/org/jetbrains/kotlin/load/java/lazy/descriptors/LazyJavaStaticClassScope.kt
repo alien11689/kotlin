@@ -29,6 +29,7 @@ import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.resolve.DescriptorFactory.createEnumValueOfMethod
 import org.jetbrains.kotlin.resolve.DescriptorFactory.createEnumValuesMethod
+import org.jetbrains.kotlin.resolve.DescriptorFactory.createEnumValuesProperty
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.descriptorUtil.getSuperClassNotAny
 import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
@@ -99,6 +100,12 @@ public class LazyJavaStaticClassScope(
                 }
 
         result.addAll(actualProperties)
+
+        if (jClass.isEnum) {
+            when (name) {
+                DescriptorUtils.ENUM_VALUES -> result.add(createEnumValuesProperty(getContainingDeclaration()))
+            }
+        }
     }
 
     override fun getContainingDeclaration() = super.getContainingDeclaration() as LazyJavaClassDescriptor
