@@ -630,10 +630,19 @@ public class JetTypeMapper {
     }
 
     private static boolean hasNothingInArguments(JetType jetType) {
-        return CollectionsKt.any(jetType.getArguments(), new Function1<TypeProjection, Boolean>() {
+        boolean hasNothingInArguments = CollectionsKt.any(jetType.getArguments(), new Function1<TypeProjection, Boolean>() {
             @Override
             public Boolean invoke(TypeProjection projection) {
                 return KotlinBuiltIns.isNothingOrNullableNothing(projection.getType());
+            }
+        });
+
+        if (hasNothingInArguments) return true;
+
+        return CollectionsKt.any(jetType.getArguments(), new Function1<TypeProjection, Boolean>() {
+            @Override
+            public Boolean invoke(TypeProjection projection) {
+                return !projection.isStarProjection() && hasNothingInArguments(projection.getType());
             }
         });
     }
