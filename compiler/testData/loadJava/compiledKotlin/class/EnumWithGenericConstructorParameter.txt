@@ -2,8 +2,8 @@ package test
 
 public final enum class EnumWithGenericConstructorParameter : kotlin.Enum<test.EnumWithGenericConstructorParameter> {
     /*primary*/ private constructor EnumWithGenericConstructorParameter(/*0*/ list: kotlin.List<kotlin.String>?)
-    public final override /*1*/ /*fake_override*/ val name: kotlin.String
-        public final override /*1*/ /*fake_override*/ fun <get-name>(): kotlin.String
+    public final override /*1*/ /*fake_override*/ val abcdeXXX: kotlin.String
+        public final override /*1*/ /*fake_override*/ fun <get-abcdeXXX>(): kotlin.String
     public final override /*1*/ /*fake_override*/ val ordinal: kotlin.Int
         public final override /*1*/ /*fake_override*/ fun <get-ordinal>(): kotlin.Int
     protected final override /*1*/ /*fake_override*/ fun clone(): kotlin.Any

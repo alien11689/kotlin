@@ -17,7 +17,7 @@ enum class B {
     c
 }
 fun box(): String {
-    if (Simple.OK.name != "OK") return "Simple.OK.name != OK, it: ${Simple.OK.name}"
+    if (Simple.OK.abcdeXXX != "OK") return "Simple.OK.abcdeXXX != OK, it: ${Simple.OK.abcdeXXX}"
     val ok = Simple.OK
     if (ok.ordinal != 0) return "ok = Simple.Ok; ok.ordinal != 0, it: ${ok.ordinal}"
 
@@ -36,9 +36,9 @@ fun box(): String {
     if (A.a == A.b) return "A.a == A.b"
     if (A.a.hashCode() == A.b.hashCode()) return "hash(A.a) == hash(A.b)"
 
-    if (A.a.name != "a") return "A.a.name != a, it: ${A.a.name}"
-    if (A.b.name != "b") return "A.b.name != b, it: ${A.b.name}"
-    if (A.c.name != "c") return "A.c.name != c, it: ${A.c.name}"
+    if (A.a.abcdeXXX != "a") return "A.a.abcdeXXX != a, it: ${A.a.abcdeXXX}"
+    if (A.b.abcdeXXX != "b") return "A.b.abcdeXXX != b, it: ${A.b.abcdeXXX}"
+    if (A.c.abcdeXXX != "c") return "A.c.abcdeXXX != c, it: ${A.c.abcdeXXX}"
 
     if (A.a.ordinal != 0) return "A.a.ordinal != 0, it: ${A.a.ordinal}"
     if (A.b.ordinal != 1) return "A.b.ordinal != 1, it: ${A.b.ordinal}"

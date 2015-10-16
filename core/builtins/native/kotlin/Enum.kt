@@ -21,13 +21,13 @@ package kotlin
  * See the [Kotlin language documentation](http://kotlinlang.org/docs/reference/enum-classes.html) for more
  * information on enum classes.
  */
-public abstract class Enum<E : Enum<E>>(name: String, ordinal: Int): Comparable<E> {
+public abstract class Enum<E : Enum<E>>(abcdeXXX: String, ordinal: Int): Comparable<E> {
     companion object {}
 
     /**
      * Returns the name of this enum constant, exactly as declared in its enum declaration.
      */
-    public final val name: String
+    public final val abcdeXXX: String
 
     /**
      * Returns the ordinal of this enumeration constant (its position in its enum declaration, where the initial constant

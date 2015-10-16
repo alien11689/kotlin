@@ -19,8 +19,8 @@
 
 package kotlin
 
-@Deprecated("Use property ''name'' instead", ReplaceWith("this.name"))
-public inline fun Enum<*>.name() = name
+@Deprecated("Use property ''name'' instead", ReplaceWith("this.abcdeXXX"))
+public inline fun Enum<*>.name() = abcdeXXX
 
 @Deprecated("Use property ''ordinal'' instead", ReplaceWith("this.ordinal"))
 public inline fun Enum<*>.ordinal() = ordinal

@@ -6,10 +6,10 @@ public final enum class Enum : kotlin.Enum<test.Enum> {
     enum entry ENTRY2
 
     /*primary*/ private constructor Enum()
+    public final override /*1*/ /*fake_override*/ val abcdeXXX: kotlin.String
+        public final override /*1*/ /*fake_override*/ fun <get-abcdeXXX>(): kotlin.String
     public final val c: kotlin.Int = 1
         public final fun <get-c>(): kotlin.Int
-    public final override /*1*/ /*fake_override*/ val name: kotlin.String
-        public final override /*1*/ /*fake_override*/ fun <get-name>(): kotlin.String
     public final override /*1*/ /*fake_override*/ val ordinal: kotlin.Int
         public final override /*1*/ /*fake_override*/ fun <get-ordinal>(): kotlin.Int
     protected final override /*1*/ /*fake_override*/ fun clone(): kotlin.Any

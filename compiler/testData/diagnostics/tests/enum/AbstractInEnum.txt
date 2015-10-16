@@ -10,6 +10,7 @@ package abstract {
         public final val a1: kotlin.Int = 1
         public abstract val a2: kotlin.Int
         public abstract val a3: kotlin.Int = 1
+        public final override /*1*/ /*fake_override*/ val abcdeXXX: kotlin.String
         public final var b: kotlin.Int
         public final var b1: kotlin.Int
         public abstract var b2: kotlin.Int
@@ -31,7 +32,6 @@ package abstract {
         public final var l: kotlin.Int
         public final var l1: kotlin.Int
         public final var n: kotlin.Int
-        public final override /*1*/ /*fake_override*/ val name: kotlin.String
         public final override /*1*/ /*fake_override*/ val ordinal: kotlin.Int
         protected final override /*1*/ /*fake_override*/ fun clone(): kotlin.Any
         public final override /*1*/ /*fake_override*/ fun compareTo(/*0*/ other: abstract.MyEnum): kotlin.Int

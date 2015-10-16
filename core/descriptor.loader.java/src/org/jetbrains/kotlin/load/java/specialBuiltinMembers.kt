@@ -36,7 +36,7 @@ import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 
 object BuiltinSpecialProperties {
     private val PROPERTY_FQ_NAME_TO_JVM_GETTER_NAME_MAP = mapOf(
-            FqName("kotlin.Enum.name")                 to Name.identifier("name"),
+            FqName("kotlin.Enum.abcdeXXX")                 to Name.identifier("name"),
             FqName("kotlin.Enum.ordinal")              to Name.identifier("ordinal"),
             FqName("kotlin.Collection.size")           to Name.identifier("size"),
             FqName("kotlin.Map.size")                  to Name.identifier("size"),

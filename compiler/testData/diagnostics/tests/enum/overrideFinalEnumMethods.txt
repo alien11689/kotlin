@@ -4,7 +4,7 @@ public final enum class E : kotlin.Enum<E> {
     enum entry ENTRY
 
     private constructor E()
-    public open override /*1*/ val name: kotlin.String = "lol"
+    public open override /*1*/ val abcdeXXX: kotlin.String = "lol"
     public open override /*1*/ val ordinal: kotlin.Int = 0
     protected final override /*1*/ /*fake_override*/ fun clone(): kotlin.Any
     public open override /*1*/ fun compareTo(/*0*/ other: E): kotlin.Int

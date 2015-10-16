@@ -324,7 +324,7 @@
             this.name$ = void 0;
             this.ordinal$ = void 0;
         }, {
-            name: {
+            abcdeXXX: {
                 get: function () {
                     return this.name$;
                 }
@@ -344,7 +344,7 @@
                 return this.ordinal$ < o.ordinal$ ? -1 : this.ordinal$ > o.ordinal$ ? 1 : 0;
             },
             toString: function () {
-                return this.name;
+                return this.abcdeXXX;
             }
         }
     );

@@ -6,8 +6,8 @@ public final enum class EnumMembers : kotlin.Enum<test.EnumMembers!> {
     enum entry SECOND
 
     private constructor EnumMembers(/*0*/ p0: kotlin.Boolean)
+    public final override /*1*/ /*fake_override*/ val abcdeXXX: kotlin.String
     public final val isFirst: kotlin.Boolean
-    public final override /*1*/ /*fake_override*/ val name: kotlin.String
     public final override /*1*/ /*fake_override*/ val ordinal: kotlin.Int
     protected final override /*1*/ /*fake_override*/ fun clone(): kotlin.Any
     public final override /*1*/ /*fake_override*/ fun compareTo(/*0*/ other: test.EnumMembers!): kotlin.Int
