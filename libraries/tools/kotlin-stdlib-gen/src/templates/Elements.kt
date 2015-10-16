@@ -26,6 +26,20 @@ fun elements(): List<GenericFunction> {
         }
     }
 
+
+    templates add f("contains(element: T)") {
+        operator(true)
+        inline(true)
+        only(Iterables, Sequences, ArraysOfObjects)
+        doc { "Returns `true` if [element] is found in the collection." }
+        returns("Boolean")
+        deprecate(Deprecation("Use 'containsRaw' instead.", "containsRaw(element)"))
+        annotations("""
+            @kotlin.jvm.JvmName("containsAny")
+            @kotlin.internal.LowPriorityInOverloadResolution
+        """.trimIndent())
+    }
+
     templates add f("containsRaw(element: Any?)") {
         only(Iterables, Sequences, ArraysOfObjects)
         doc {
@@ -87,6 +101,19 @@ fun elements(): List<GenericFunction> {
             return -1
            """
         }
+    }
+
+    templates add f("indexOf(element: T)") {
+        only(Iterables, Sequences, ArraysOfObjects)
+        inline(true)
+        doc { "Returns first index of [element], or -1 if the collection does not contain element." }
+        returns("Int")
+        deprecate(Deprecation("Use 'indexOfRaw' instead.", "indexOfRaw(element)"))
+        annotations("""
+            @kotlin.jvm.JvmName("indexOfAny")
+            @kotlin.internal.LowPriorityInOverloadResolution
+            @Suppress("NOTHING_TO_INLINE")
+        """.trimIndent())
     }
 
     templates add f("indexOfRaw(element: Any?)") {
@@ -152,6 +179,19 @@ fun elements(): List<GenericFunction> {
             return -1
            """
         }
+    }
+
+    templates add f("lastIndexOf(element: T)") {
+        only(Iterables, Sequences, ArraysOfObjects)
+        doc { "Returns last index of [element], or -1 if the collection does not contain element." }
+        returns("Int")
+        inline(true)
+        deprecate(Deprecation("Use 'indexOfRaw' instead.", "indexOfRaw(element)"))
+        annotations("""
+            @kotlin.jvm.JvmName("lastIndexOfAny")
+            @kotlin.internal.LowPriorityInOverloadResolution
+            @Suppress("NOTHING_TO_INLINE")
+        """.trimIndent())
     }
 
     templates add f("lastIndexOfRaw(element: Any?)") {

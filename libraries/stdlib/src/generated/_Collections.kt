@@ -65,6 +65,16 @@ public operator fun <T> Iterable<T>.contains(element: @kotlin.internal.NoInfer T
  * Returns `true` if [element] is found in the collection.
  * Allows to overcome type-safety restriction of `contains` that requires to pass an element of type `T`.
  */
+@Deprecated("Use 'containsRaw' instead.", ReplaceWith("containsRaw(element)"))
+@kotlin.jvm.JvmName("containsAny")
+@kotlin.internal.LowPriorityInOverloadResolution
+public inline operator fun <T> Iterable<T>.contains(element: T): Boolean {
+    return containsRaw(element)
+}
+
+/**
+ * Returns `true` if [element] is found in the collection.
+ */
 @Suppress("NOTHING_TO_INLINE")
 public inline fun Iterable<*>.containsRaw(element: Any?): Boolean {
     return contains<Any?>(element)
@@ -261,6 +271,17 @@ public fun <T> Iterable<T>.indexOf(element: @kotlin.internal.NoInfer T): Int {
 }
 
 /**
+ * Returns first index of [element], or -1 if the collection does not contain element.
+ */
+@Deprecated("Use 'indexOfRaw' instead.", ReplaceWith("indexOfRaw(element)"))
+@kotlin.jvm.JvmName("indexOfAny")
+@kotlin.internal.LowPriorityInOverloadResolution
+@Suppress("NOTHING_TO_INLINE")
+public inline fun <T> Iterable<T>.indexOf(element: T): Int {
+    return indexOfRaw(element)
+}
+
+/**
  * Returns index of the first element matching the given [predicate], or -1 if the collection does not contain such element.
  */
 public inline fun <T> Iterable<T>.indexOfFirst(predicate: (T) -> Boolean): Int {
@@ -412,6 +433,17 @@ public fun <T> Iterable<T>.lastIndexOf(element: @kotlin.internal.NoInfer T): Int
 /**
  * Returns last index of [element], or -1 if the collection does not contain element.
  * Allows to overcome type-safety restriction of `lastIndexOf` that requires to pass an element of type `T`.
+ */
+@Deprecated("Use 'indexOfRaw' instead.", ReplaceWith("indexOfRaw(element)"))
+@kotlin.jvm.JvmName("lastIndexOfAny")
+@kotlin.internal.LowPriorityInOverloadResolution
+@Suppress("NOTHING_TO_INLINE")
+public inline fun <T> Iterable<T>.lastIndexOf(element: T): Int {
+    return indexOfRaw(element)
+}
+
+/**
+ * Returns last index of [element], or -1 if the collection does not contain element.
  */
 @Suppress("NOTHING_TO_INLINE")
 public inline fun Iterable<*>.lastIndexOfRaw(element: Any?): Int {
