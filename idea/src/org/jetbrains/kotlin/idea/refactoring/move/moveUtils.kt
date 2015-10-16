@@ -288,6 +288,7 @@ fun postProcessMoveUsages(usages: List<UsageInfo>,
                             it.bindToElement(newElement, shorteningMode)
                         }
                         else if (it is PsiReferenceExpression && updateJavaReference(it, oldElement, newElement)) {
+                            null
                         }
                         else {
                             it.bindToElement(newElement)
