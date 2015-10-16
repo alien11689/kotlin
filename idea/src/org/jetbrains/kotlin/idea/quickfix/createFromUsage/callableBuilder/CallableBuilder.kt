@@ -61,6 +61,7 @@ import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.*
+import org.jetbrains.kotlin.psi.typeRefHelpers.setReceiverTypeReference
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.DescriptorToSourceUtils
 import org.jetbrains.kotlin.resolve.DescriptorUtils
@@ -640,13 +641,10 @@ class CallableBuilder(val config: CallableBuilderConfiguration) {
             val typeRefsToShorten = ArrayList<JetElement>()
 
             if (config.isExtension) {
-                val receiverTypeRef = JetPsiFactory(declaration).createType(receiverTypeCandidate!!.theType.renderLong(typeParameterNameMap))
-                replaceWithLongerName(receiverTypeRef, receiverTypeCandidate.theType)
-
-                val funcReceiverTypeRef = (declaration as? JetCallableDeclaration)?.getReceiverTypeReference()
-                if (funcReceiverTypeRef != null) {
-                    typeRefsToShorten.add(funcReceiverTypeRef)
-                }
+                declaration as JetCallableDeclaration
+                val receiverTypeText = receiverTypeCandidate!!.theType.renderLong(typeParameterNameMap)
+                val newTypeRef = declaration.setReceiverTypeReference(JetPsiFactory(declaration).createType(receiverTypeText))!!
+                typeRefsToShorten.add(newTypeRef)
             }
 
             val returnTypeRef = declaration.getReturnTypeReference()
