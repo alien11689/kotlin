@@ -209,7 +209,19 @@ public abstract class CodegenContext<T extends DeclarationDescriptor> {
 
     @NotNull
     public ClassContext intoClass(ClassDescriptor descriptor, OwnerKind kind, GenerationState state) {
-        return new ClassContext(state.getTypeMapper(), descriptor, kind, this, null);
+        //We need to create companion object context ahead of time
+        // because otherwise we can't generate synthetic accessor for private members in companion object
+        if (descriptor.isCompanionObject()) {
+            CodegenContext companionContext = this.findChildContext(descriptor);
+            if (companionContext != null) {
+                return (ClassContext) companionContext;
+            }
+        }
+        ClassContext classContext = new ClassContext(state.getTypeMapper(), descriptor, kind, this, null);
+        if (descriptor.getCompanionObjectDescriptor() != null) {
+            classContext.intoClass(descriptor.getCompanionObjectDescriptor(), kind, state);
+        }
+        return classContext;
     }
 
     @NotNull
@@ -303,7 +315,25 @@ public abstract class CodegenContext<T extends DeclarationDescriptor> {
                    accessor instanceof AccessorForPropertyBackingFieldInOuterClass : "There is already exists accessor with isForBackingFieldInOuterClass = false in this context";
             return (D) accessor;
         }
-        String nameSuffix = SyntheticAccessorUtilKt.getAccessorNameSuffix(descriptor, key.superCallLabelTarget, isForBackingFieldInOuterClass);
+        accessor = createAccessor(contextDescriptor, isForBackingFieldInOuterClass, delegateType, superCallExpression, descriptor, key.superCallLabelTarget);
+
+        accessors.put(key, accessor);
+
+        return (D) accessor;
+    }
+
+    @NotNull
+    private static <D extends CallableMemberDescriptor> AccessorForCallableDescriptor<?> createAccessor(
+            @NotNull DeclarationDescriptor contextDescriptor,
+            boolean isForBackingFieldInOuterClass,
+            @Nullable JetType delegateType,
+            @Nullable JetSuperExpression superCallExpression,
+            D descriptor,
+            @Nullable ClassDescriptor superCallClassDescriptor
+    ) {
+        AccessorForCallableDescriptor<?> accessor;
+        String nameSuffix = SyntheticAccessorUtilKt
+                .getAccessorNameSuffix(descriptor, superCallClassDescriptor, isForBackingFieldInOuterClass);
         if (descriptor instanceof SimpleFunctionDescriptor) {
             accessor = new AccessorForFunctionDescriptor(
                     (FunctionDescriptor) descriptor, contextDescriptor, superCallExpression, nameSuffix
@@ -325,10 +355,7 @@ public abstract class CodegenContext<T extends DeclarationDescriptor> {
         else {
             throw new UnsupportedOperationException("Do not know how to create accessor for descriptor " + descriptor);
         }
-
-        accessors.put(key, accessor);
-
-        return (D) accessor;
+        return accessor;
     }
 
     @Nullable
@@ -424,7 +451,8 @@ public abstract class CodegenContext<T extends DeclarationDescriptor> {
     ) {
         CallableMemberDescriptor unwrappedDescriptor = DescriptorUtils.unwrapFakeOverride(descriptor);
         int flag = getAccessFlags(unwrappedDescriptor);
-        if ((flag & ACC_PRIVATE) == 0 && (flag & ACC_PROTECTED) == 0) {
+        boolean isPrivate = (flag & ACC_PRIVATE) != 0;
+        if (!isPrivate && (flag & ACC_PROTECTED) == 0) {
             return descriptor;
         }
 
