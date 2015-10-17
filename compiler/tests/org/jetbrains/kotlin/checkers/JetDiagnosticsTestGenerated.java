@@ -4080,6 +4080,12 @@ public class JetDiagnosticsTestGenerated extends AbstractJetDiagnosticsTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("FiniteBoundRestrictions.kt")
+            public void testFiniteBoundRestrictions() throws Exception {
+                String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/declarationChecks/FiniteBoundRestrictions.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("FunctionWithMissingNames.kt")
             public void testFunctionWithMissingNames() throws Exception {
                 String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/declarationChecks/FunctionWithMissingNames.kt");
@@ -4161,6 +4167,12 @@ public class JetDiagnosticsTestGenerated extends AbstractJetDiagnosticsTest {
             @TestMetadata("MultiDeclarationErrors.kt")
             public void testMultiDeclarationErrors() throws Exception {
                 String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/declarationChecks/MultiDeclarationErrors.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("NonExpansiveInheritanceRestrictions.kt")
+            public void testNonExpansiveInheritanceRestrictions() throws Exception {
+                String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/declarationChecks/NonExpansiveInheritanceRestrictions.kt");
                 doTest(fileName);
             }
 

@@ -25,7 +25,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns;
 import org.jetbrains.kotlin.descriptors.*;
-import org.jetbrains.kotlin.diagnostics.DiagnosticFactory1;
 import org.jetbrains.kotlin.diagnostics.DiagnosticFactory0;
 import org.jetbrains.kotlin.diagnostics.Errors;
 import org.jetbrains.kotlin.lexer.JetModifierKeywordToken;
@@ -296,6 +295,8 @@ public class DeclarationsChecker {
         checkOpenMembers(classDescriptor);
         checkTypeParameters(aClass);
         checkTypeParameterConstraints(aClass);
+        FiniteBoundRestrictionChecker.check(aClass, classDescriptor.getDefaultType(), trace);
+        NonExpansiveInheritanceRestrictionChecker.check(aClass, classDescriptor.getDefaultType(), trace);
 
         if (aClass.isInterface()) {
             checkConstructorInInterface(aClass);

@@ -99,6 +99,8 @@ public interface Errors {
     DiagnosticFactory1<JetTypeProjection, ClassifierDescriptor> REDUNDANT_PROJECTION = DiagnosticFactory1.create(WARNING, VARIANCE_IN_PROJECTION);
     DiagnosticFactory1<PsiElement, VarianceConflictDiagnosticData> TYPE_VARIANCE_CONFLICT =
             DiagnosticFactory1.create(ERROR, DECLARATION_SIGNATURE_OR_DEFAULT);
+    DiagnosticFactory0<PsiElement> FINITE_BOUNDS_VIOLATION = DiagnosticFactory0.create(ERROR);
+    DiagnosticFactory0<PsiElement> EXPANSIVE_INHERITANCE = DiagnosticFactory0.create(ERROR);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
