@@ -10714,7 +10714,7 @@ public fun <T> Array<T>.fill(element: T, fromIndex: Int = 0, toIndex: Int = size
  * Returns a list containing all elements that are instances of specified type parameter R.
  */
 @kotlin.jvm.JvmVersion
-public inline fun <reified R> Array<*>.filterIsInstance(): List<R> {
+public inline fun <reified R> Array<*>.filterIsInstance(): @kotlin.internal.NoInfer List<R> {
     return filterIsInstanceTo(ArrayList<R>())
 }
 
