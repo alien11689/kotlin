@@ -612,6 +612,55 @@ public class TypeUtils {
         return null;
     }
 
+    public static Collection<JetType> boundClosure(Collection<JetType> types) {
+        if (types.size() == 0) return types;
+
+        Set<JetType> result = new HashSet<JetType>(types);
+        Set<JetType> elementsToCheck = result;
+        int oldSize = 0;
+        int size = result.size();
+        while (size > oldSize) {
+            oldSize = size;
+            Set<JetType> toAdd = new HashSet<JetType>();
+            for (JetType type : elementsToCheck) {
+                TypeParameterDescriptor typeParameterDescriptor = getTypeParameterDescriptorOrNull(type);
+                if (typeParameterDescriptor != null) {
+                    toAdd.addAll(typeParameterDescriptor.getUpperBounds());
+                }
+            }
+            result.addAll(toAdd);
+            elementsToCheck = toAdd;
+            size = result.size();
+        }
+
+        return result;
+    }
+
+    public static Collection<JetType> constituentTypes(Collection<JetType> types) {
+        if (types.size() == 0) return types;
+
+        Set<JetType> result = new HashSet<JetType>(types);
+        Set<JetType> elementsToCheck = result;
+        int oldSize = 0;
+        int size = result.size();
+        while (size > oldSize) {
+            oldSize = size;
+            Set<JetType> toAdd = new HashSet<JetType>();
+            for (JetType type : elementsToCheck) {
+                for (TypeProjection typeProjection : type.getArguments()) {
+                    if (!typeProjection.isStarProjection()) {
+                        toAdd.add(typeProjection.getType());
+                    }
+                }
+            }
+            result.addAll(toAdd);
+            elementsToCheck = toAdd;
+            size = result.size();
+        }
+
+        return result;
+    }
+
     private static abstract class AbstractTypeWithKnownNullability extends AbstractJetType {
         private final JetType delegate;
 

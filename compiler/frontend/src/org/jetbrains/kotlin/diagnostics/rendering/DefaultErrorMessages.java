@@ -510,6 +510,8 @@ public class DefaultErrorMessages {
                     }
                 });
 
+        MAP.put(FINITE_BOUNDS_VIOLATION, "Type argument is not within its bounds (violation of Finite Bound Restriction)");
+        MAP.put(EXPANSIVE_INHERITANCE, "Type argument is not within its bounds (violation of Non-Expansive Inheritance Restriction");
         MAP.put(REDUNDANT_PROJECTION, "Projection is redundant: the corresponding type parameter of {0} has the same variance", NAME);
         MAP.put(CONFLICTING_PROJECTION, "Projection is conflicting with variance of the corresponding type parameter of {0}. Remove the projection or replace it with ''*''", NAME);
 
