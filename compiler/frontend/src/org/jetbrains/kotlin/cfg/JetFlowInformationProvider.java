@@ -754,6 +754,7 @@ public class JetFlowInformationProvider {
                         Pseudocode pseudocode = instruction.getOwner();
                         boolean isUsedAsExpression = !pseudocode.getUsages(value).isEmpty();
                         for (JetElement element : pseudocode.getValueElements(value)) {
+                            boolean used = isUsedAsExpression;
                             trace.record(BindingContext.USED_AS_EXPRESSION, element, isUsedAsExpression);
                         }
                     }
@@ -764,11 +765,6 @@ public class JetFlowInformationProvider {
     public void markImproperIfAsAnExpression() {
         PseudocodeTraverserKt.traverse(
                 pseudocode, FORWARD, new JetFlowInformationProvider.FunctionVoid1<Instruction>() {
-                    private boolean checkBlockExpression(JetExpression expression) {
-                        if (!(expression instanceof JetBlockExpression)) return false;
-                        return ((JetBlockExpression) expression).getStatements().isEmpty();
-                    }
-
                     @Override
                     public void execute(@NotNull Instruction instruction) {
                         PseudoValue value = instruction instanceof InstructionWithValue
@@ -777,23 +773,10 @@ public class JetFlowInformationProvider {
                         for (JetElement element : instruction.getOwner().getValueElements(value)) {
                             if (!(element instanceof JetIfExpression)) continue;
                             JetIfExpression ifExpression = (JetIfExpression) element;
+                            if (ifExpression.getThen() != null && ifExpression.getElse() != null) continue;
 
-                            if (BindingContextUtilsKt.isUsedAsExpression((JetExpression) element, trace.getBindingContext())) {
-                                if (ifExpression.getParent() instanceof JetBlockExpression &&
-                                        ifExpression.getParent().getParent() instanceof JetFunctionLiteral) {
-                                    return;
-                                }
-
-                                boolean isWrong = ifExpression.getThen() == null || ifExpression.getElse() == null;
-
-                                if (!isWrong) {
-                                    isWrong = checkBlockExpression(ifExpression.getThen())
-                                           || checkBlockExpression(ifExpression.getElse());
-                                }
-
-                                if (isWrong) {
-                                    trace.report(INVALID_IF_AS_EXPRESSION.on(ifExpression));
-                                }
+                            if (!pseudocode.getUsages(value).isEmpty()) {
+                                trace.report(INVALID_IF_AS_EXPRESSION.on(ifExpression));
                             }
                         }
                     }
