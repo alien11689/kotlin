@@ -63,7 +63,6 @@ public operator fun <T> Iterable<T>.contains(element: @kotlin.internal.NoInfer T
 
 /**
  * Returns `true` if [element] is found in the collection.
- * Allows to overcome type-safety restriction of `contains` that requires to pass an element of type `T`.
  */
 @Deprecated("Use 'containsRaw' instead.", ReplaceWith("containsRaw(element)"))
 @kotlin.jvm.JvmName("containsAny")
@@ -74,6 +73,7 @@ public inline operator fun <T> Iterable<T>.contains(element: T): Boolean {
 
 /**
  * Returns `true` if [element] is found in the collection.
+ * Allows to overcome type-safety restriction of `contains` that requires to pass an element of type `T`.
  */
 @Suppress("NOTHING_TO_INLINE")
 public inline fun Iterable<*>.containsRaw(element: Any?): Boolean {
@@ -432,7 +432,6 @@ public fun <T> Iterable<T>.lastIndexOf(element: @kotlin.internal.NoInfer T): Int
 
 /**
  * Returns last index of [element], or -1 if the collection does not contain element.
- * Allows to overcome type-safety restriction of `lastIndexOf` that requires to pass an element of type `T`.
  */
 @Deprecated("Use 'indexOfRaw' instead.", ReplaceWith("indexOfRaw(element)"))
 @kotlin.jvm.JvmName("lastIndexOfAny")
@@ -444,6 +443,7 @@ public inline fun <T> Iterable<T>.lastIndexOf(element: T): Int {
 
 /**
  * Returns last index of [element], or -1 if the collection does not contain element.
+ * Allows to overcome type-safety restriction of `lastIndexOf` that requires to pass an element of type `T`.
  */
 @Suppress("NOTHING_TO_INLINE")
 public inline fun Iterable<*>.lastIndexOfRaw(element: Any?): Int {
