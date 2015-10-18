@@ -10,7 +10,7 @@ fun elements(): List<GenericFunction> {
 
         only(Iterables, Sequences, ArraysOfObjects, ArraysOfPrimitives)
         doc { "Returns `true` if [element] is found in the collection." }
-        customSignature(Iterables, ArraysOfObjects, Sequences) { "contains(element: @kotlin.internal.NoInfer T)" }
+        customSignature(Iterables, Sequences) { "contains(element: @kotlin.internal.NoInfer T)" }
         returns("Boolean")
         body(Iterables) {
             """
@@ -30,7 +30,7 @@ fun elements(): List<GenericFunction> {
     templates add f("contains(element: T)") {
         operator(true)
         inline(true)
-        only(Iterables, Sequences, ArraysOfObjects)
+        only(Iterables, Sequences)
         doc { "Returns `true` if [element] is found in the collection." }
         returns("Boolean")
         deprecate(Deprecation("Use 'containsRaw' instead.", "containsRaw(element)"))
@@ -58,7 +58,7 @@ fun elements(): List<GenericFunction> {
     templates add f("indexOf(element: T)") {
         only(Iterables, Sequences, ArraysOfObjects, ArraysOfPrimitives)
         doc { "Returns first index of [element], or -1 if the collection does not contain element." }
-        customSignature(Iterables, ArraysOfObjects, Sequences) { "indexOf(element: @kotlin.internal.NoInfer T)" }
+        customSignature(Iterables, Sequences) { "indexOf(element: @kotlin.internal.NoInfer T)" }
         returns("Int")
         body { f ->
             """
@@ -104,7 +104,7 @@ fun elements(): List<GenericFunction> {
     }
 
     templates add f("indexOf(element: T)") {
-        only(Iterables, Sequences, ArraysOfObjects)
+        only(Iterables, Sequences)
         inline(true)
         doc { "Returns first index of [element], or -1 if the collection does not contain element." }
         returns("Int")
@@ -135,7 +135,7 @@ fun elements(): List<GenericFunction> {
     templates add f("lastIndexOf(element: T)") {
         only(Iterables, Sequences, ArraysOfObjects, ArraysOfPrimitives)
         doc { "Returns last index of [element], or -1 if the collection does not contain element." }
-        customSignature(Iterables, ArraysOfObjects, Sequences) { "lastIndexOf(element: @kotlin.internal.NoInfer T)" }
+        customSignature(Iterables, Sequences) { "lastIndexOf(element: @kotlin.internal.NoInfer T)" }
         returns("Int")
         body { f ->
             """
@@ -182,7 +182,7 @@ fun elements(): List<GenericFunction> {
     }
 
     templates add f("lastIndexOf(element: T)") {
-        only(Iterables, Sequences, ArraysOfObjects)
+        only(Iterables, Sequences)
         doc { "Returns last index of [element], or -1 if the collection does not contain element." }
         returns("Int")
         inline(true)

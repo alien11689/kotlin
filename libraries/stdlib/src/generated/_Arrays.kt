@@ -375,7 +375,7 @@ public inline operator fun ShortArray.component5(): Short {
 /**
  * Returns `true` if [element] is found in the collection.
  */
-public operator fun <T> Array<out T>.contains(element: @kotlin.internal.NoInfer T): Boolean {
+public operator fun <T> Array<out T>.contains(element: T): Boolean {
     return indexOf(element) >= 0
 }
 
@@ -438,16 +438,6 @@ public operator fun ShortArray.contains(element: Short): Boolean {
 /**
  * Returns `true` if [element] is found in the collection.
  * Allows to overcome type-safety restriction of `contains` that requires to pass an element of type `T`.
- */
-@Deprecated("Use 'containsRaw' instead.", ReplaceWith("containsRaw(element)"))
-@kotlin.jvm.JvmName("containsAny")
-@kotlin.internal.LowPriorityInOverloadResolution
-public inline operator fun <T> Array<out T>.contains(element: T): Boolean {
-    return containsRaw(element)
-}
-
-/**
- * Returns `true` if [element] is found in the collection.
  */
 @Suppress("NOTHING_TO_INLINE")
 public inline fun <T> Array<out T>.containsRaw(element: Any?): Boolean {
@@ -1204,7 +1194,7 @@ public fun ShortArray.getOrNull(index: Int): Short? {
 /**
  * Returns first index of [element], or -1 if the collection does not contain element.
  */
-public fun <T> Array<out T>.indexOf(element: @kotlin.internal.NoInfer T): Int {
+public fun <T> Array<out T>.indexOf(element: T): Int {
     if (element == null) {
         for (index in indices) {
             if (this[index] == null) {
@@ -1315,17 +1305,6 @@ public fun ShortArray.indexOf(element: Short): Int {
         }
     }
     return -1
-}
-
-/**
- * Returns first index of [element], or -1 if the collection does not contain element.
- */
-@Deprecated("Use 'indexOfRaw' instead.", ReplaceWith("indexOfRaw(element)"))
-@kotlin.jvm.JvmName("indexOfAny")
-@kotlin.internal.LowPriorityInOverloadResolution
-@Suppress("NOTHING_TO_INLINE")
-public inline fun <T> Array<out T>.indexOf(element: T): Int {
-    return indexOfRaw(element)
 }
 
 /**
@@ -1754,7 +1733,7 @@ public inline fun ShortArray.last(predicate: (Short) -> Boolean): Short {
 /**
  * Returns last index of [element], or -1 if the collection does not contain element.
  */
-public fun <T> Array<out T>.lastIndexOf(element: @kotlin.internal.NoInfer T): Int {
+public fun <T> Array<out T>.lastIndexOf(element: T): Int {
     if (element == null) {
         for (index in indices.reversed()) {
             if (this[index] == null) {
@@ -1870,17 +1849,6 @@ public fun ShortArray.lastIndexOf(element: Short): Int {
 /**
  * Returns last index of [element], or -1 if the collection does not contain element.
  * Allows to overcome type-safety restriction of `lastIndexOf` that requires to pass an element of type `T`.
- */
-@Deprecated("Use 'indexOfRaw' instead.", ReplaceWith("indexOfRaw(element)"))
-@kotlin.jvm.JvmName("lastIndexOfAny")
-@kotlin.internal.LowPriorityInOverloadResolution
-@Suppress("NOTHING_TO_INLINE")
-public inline fun <T> Array<out T>.lastIndexOf(element: T): Int {
-    return indexOfRaw(element)
-}
-
-/**
- * Returns last index of [element], or -1 if the collection does not contain element.
  */
 @Suppress("NOTHING_TO_INLINE")
 public inline fun <T> Array<out T>.lastIndexOfRaw(element: Any?): Int {
