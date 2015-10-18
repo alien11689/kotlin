@@ -21,7 +21,6 @@ public operator fun <T> Sequence<T>.contains(element: @kotlin.internal.NoInfer T
 
 /**
  * Returns `true` if [element] is found in the collection.
- * Allows to overcome type-safety restriction of `contains` that requires to pass an element of type `T`.
  */
 @Deprecated("Use 'containsRaw' instead.", ReplaceWith("containsRaw(element)"))
 @kotlin.jvm.JvmName("containsAny")
@@ -32,6 +31,7 @@ public inline operator fun <T> Sequence<T>.contains(element: T): Boolean {
 
 /**
  * Returns `true` if [element] is found in the collection.
+ * Allows to overcome type-safety restriction of `contains` that requires to pass an element of type `T`.
  */
 @Suppress("NOTHING_TO_INLINE")
 public inline fun Sequence<*>.containsRaw(element: Any?): Boolean {
@@ -236,7 +236,6 @@ public fun <T> Sequence<T>.lastIndexOf(element: @kotlin.internal.NoInfer T): Int
 
 /**
  * Returns last index of [element], or -1 if the collection does not contain element.
- * Allows to overcome type-safety restriction of `lastIndexOf` that requires to pass an element of type `T`.
  */
 @Deprecated("Use 'indexOfRaw' instead.", ReplaceWith("indexOfRaw(element)"))
 @kotlin.jvm.JvmName("lastIndexOfAny")
@@ -248,6 +247,7 @@ public inline fun <T> Sequence<T>.lastIndexOf(element: T): Int {
 
 /**
  * Returns last index of [element], or -1 if the collection does not contain element.
+ * Allows to overcome type-safety restriction of `lastIndexOf` that requires to pass an element of type `T`.
  */
 @Suppress("NOTHING_TO_INLINE")
 public inline fun Sequence<*>.lastIndexOfRaw(element: Any?): Int {
