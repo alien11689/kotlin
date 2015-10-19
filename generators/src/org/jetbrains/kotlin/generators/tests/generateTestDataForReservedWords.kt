@@ -291,6 +291,11 @@ class TestDataBuilder() {
                 // Uses small portions of keywords instead of ALL_KEYWORDS to avoid a combinatorial explosion
                 // Each portion contains at least one keyword which should be escaped and at least one which should not.
                 for (keyword in nextKeywordPortion()) {
+
+                    if (suite.name == "dataClass" && case.name == "param") {
+                        continue
+                    }
+
                     val shouldBeEscaped = keyword in SHOULD_BE_ESCAPED || keyword in case.additionalShouldBeEscaped
 
                     val keywordWithEscapeIfNeed = if (shouldBeEscaped) "`$keyword`" else keyword
