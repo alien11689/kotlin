@@ -436,6 +436,7 @@ public class DefaultErrorMessages {
         MAP.put(METHOD_OF_ANY_IMPLEMENTED_IN_INTERFACE, "An interface may not implement a method of 'kotlin.Any'");
         MAP.put(INTERFACE_WITH_SUPERCLASS, "An interface cannot inherit from a class");
         MAP.put(SUPERTYPE_APPEARS_TWICE, "A supertype appears twice");
+        MAP.put(BOUND_APPEARS_TWICE, "A type parameter bound appears twice");
         MAP.put(FINAL_SUPERTYPE, "This type is final, so it cannot be inherited from");
         MAP.put(DATA_CLASS_CANNOT_HAVE_CLASS_SUPERTYPES, "Data class inheritance from other classes is forbidden");
         MAP.put(SEALED_SUPERTYPE, "This type is sealed, so it can be inherited by only its own nested classes or objects");

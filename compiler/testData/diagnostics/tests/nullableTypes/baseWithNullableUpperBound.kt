@@ -18,7 +18,7 @@ fun <T, N: T, INDIRECT: N> misleadingNullableSimple(
 fun <FIRST_BOUND, SECOND_BOUND> misleadingNullableMultiBound(
         <!UNUSED_PARAMETER!>fb<!>: FIRST_BOUND?,
         <!UNUSED_PARAMETER!>sb<!>: SECOND_BOUND?
-) where FIRST_BOUND: Any?, FIRST_BOUND: Any, SECOND_BOUND: Any, SECOND_BOUND: Any? {
+) where FIRST_BOUND: Any?, FIRST_BOUND: <!BOUND_APPEARS_TWICE!>Any<!>, SECOND_BOUND: Any, SECOND_BOUND: <!BOUND_APPEARS_TWICE!>Any?<!> {
 }
 
 fun <T> interactionWithRedundant(<!UNUSED_PARAMETER!>t<!>: T?<!REDUNDANT_NULLABLE!>?<!>) {}

@@ -25,7 +25,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns;
 import org.jetbrains.kotlin.descriptors.*;
-import org.jetbrains.kotlin.diagnostics.DiagnosticFactory1;
 import org.jetbrains.kotlin.diagnostics.DiagnosticFactory0;
 import org.jetbrains.kotlin.diagnostics.Errors;
 import org.jetbrains.kotlin.lexer.JetModifierKeywordToken;
@@ -360,21 +359,38 @@ public class DeclarationsChecker {
         List<JetTypeConstraint> constraints = typeParameterListOwner.getTypeConstraints();
         if (!constraints.isEmpty()) {
             for (JetTypeParameter typeParameter : typeParameterListOwner.getTypeParameters()) {
-                if (typeParameter.getExtendsBound() != null && hasConstraints(typeParameter, constraints)) {
-                    trace.report(MISPLACED_TYPE_PARAMETER_CONSTRAINTS.on(typeParameter));
+                List<JetTypeConstraint> parameterConstraints = getParameterConstraints(typeParameter, constraints);
+                if (!parameterConstraints.isEmpty()) {
+                    if (typeParameter.getExtendsBound() != null) {
+                        trace.report(MISPLACED_TYPE_PARAMETER_CONSTRAINTS.on(typeParameter));
+                    }
+                    else {
+                        Set<TypeConstructor> constraintTypeConstructors = Sets.newHashSet();
+                        for (JetTypeConstraint parameterConstraint : parameterConstraints) {
+                            JetTypeReference typeReference = parameterConstraint.getBoundTypeReference();
+                            if (typeReference == null) {
+                                continue;
+                            }
+                            JetType type = trace.get(TYPE, parameterConstraint.getBoundTypeReference());
+                            if (type != null && !constraintTypeConstructors.add(type.getConstructor())) {
+                                trace.report(BOUND_APPEARS_TWICE.on(typeReference));
+                            }
+                        }
+                    }
                 }
             }
         }
     }
 
-    private static boolean hasConstraints(JetTypeParameter typeParameter, List<JetTypeConstraint> constraints) {
+    private static List<JetTypeConstraint> getParameterConstraints(JetTypeParameter typeParameter, List<JetTypeConstraint> constraints) {
+        List<JetTypeConstraint> result = new ArrayList<JetTypeConstraint>(constraints.size());
         for (JetTypeConstraint constraint : constraints) {
             JetSimpleNameExpression parameterName = constraint.getSubjectTypeParameterName();
             if (parameterName != null && parameterName.getText().equals(typeParameter.getName())) {
-                return true;
+                result.add(constraint);
             }
         }
-        return false;
+        return result;
     }
 
     private void checkConstructorInInterface(JetClass klass) {
