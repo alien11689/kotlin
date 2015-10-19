@@ -2,7 +2,7 @@ package foo
 
 var t: Any? = null
 
-data class Dat(val start: String, middle: String, val end: String) {
+data class Dat(val start: String, val end: String) {
     override fun toString() = "another string"
     override fun hashCode() = 371
     override fun equals(other: Any?): Boolean {
@@ -12,8 +12,8 @@ data class Dat(val start: String, middle: String, val end: String) {
 }
 
 fun box(): String {
-    val d = Dat("max", "-", "min")
-    val other = Dat("other", "-", "instance")
+    val d = Dat("max", "min")
+    val other = Dat("other", "instance")
 
     assertEquals(371, d.hashCode())
     assertEquals(true, d == other)
