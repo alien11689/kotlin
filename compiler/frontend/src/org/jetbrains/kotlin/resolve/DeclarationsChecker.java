@@ -25,7 +25,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns;
 import org.jetbrains.kotlin.descriptors.*;
-import org.jetbrains.kotlin.diagnostics.DiagnosticFactory1;
 import org.jetbrains.kotlin.diagnostics.DiagnosticFactory0;
 import org.jetbrains.kotlin.diagnostics.Errors;
 import org.jetbrains.kotlin.lexer.JetModifierKeywordToken;
@@ -75,7 +74,7 @@ public class DeclarationsChecker {
             JetClassOrObject classOrObject = entry.getKey();
             ClassDescriptorWithResolutionScopes classDescriptor = entry.getValue();
 
-            checkSupertypesForConsistency(classDescriptor);
+            checkSupertypesForConsistency(classOrObject, classDescriptor);
             checkTypesInClassHeader(classOrObject);
 
             if (classOrObject instanceof JetClass) {
@@ -185,9 +184,26 @@ public class DeclarationsChecker {
         }
     }
 
-    private void checkSupertypesForConsistency(@NotNull ClassDescriptor classDescriptor) {
-        Multimap<TypeConstructor, TypeProjection> multimap = SubstitutionUtils
-                .buildDeepSubstitutionMultimap(classDescriptor.getDefaultType());
+    private void checkSupertypesForConsistency(
+            @NotNull JetClassOrObject classOrObject,
+            @NotNull ClassDescriptor classDescriptor
+    ) {
+        checkSupertypesForConsistency(classDescriptor, classOrObject);
+    }
+
+    private void checkSupertypesForConsistency(
+            @NotNull JetTypeParameter typeParameter,
+            @NotNull TypeParameterDescriptor typeParameterDescriptor
+    ) {
+        checkSupertypesForConsistency(typeParameterDescriptor, typeParameter);
+    }
+
+    private void checkSupertypesForConsistency(
+            @NotNull ClassifierDescriptor classifierDescriptor,
+            @NotNull PsiElement sourceElement
+    ) {
+        Multimap<TypeConstructor, TypeProjection> multimap =
+                SubstitutionUtils.buildDeepSubstitutionMultimap(classifierDescriptor.getDefaultType());
         for (Map.Entry<TypeConstructor, Collection<TypeProjection>> entry : multimap.asMap().entrySet()) {
             Collection<TypeProjection> projections = entry.getValue();
             if (projections.size() > 1) {
@@ -205,14 +221,19 @@ public class DeclarationsChecker {
                 if (conflictingTypes.size() > 1) {
                     DeclarationDescriptor containingDeclaration = typeParameterDescriptor.getContainingDeclaration();
                     assert containingDeclaration instanceof ClassDescriptor : containingDeclaration;
-                    JetClassOrObject psiElement = (JetClassOrObject) DescriptorToSourceUtils.getSourceFromDescriptor(classDescriptor);
-                    assert psiElement != null;
-                    JetDelegationSpecifierList delegationSpecifierList = psiElement.getDelegationSpecifierList();
-                    assert delegationSpecifierList != null;
-                    //                        trace.getErrorHandler().genericError(delegationSpecifierList.getNode(), "Type parameter " + typeParameterDescriptor.getName() + " of " + containingDeclaration.getName() + " has inconsistent values: " + conflictingTypes);
-                    trace.report(INCONSISTENT_TYPE_PARAMETER_VALUES
-                                         .on(delegationSpecifierList, typeParameterDescriptor, (ClassDescriptor) containingDeclaration,
-                                             conflictingTypes));
+                    if (sourceElement instanceof JetClassOrObject) {
+                        JetDelegationSpecifierList delegationSpecifierList = ((JetClassOrObject) sourceElement).getDelegationSpecifierList();
+                        assert delegationSpecifierList != null;
+                        //                        trace.getErrorHandler().genericError(delegationSpecifierList.getNode(), "Type parameter " + typeParameterDescriptor.getName() + " of " + containingDeclaration.getName() + " has inconsistent values: " + conflictingTypes);
+                        trace.report(INCONSISTENT_TYPE_PARAMETER_VALUES
+                                             .on(delegationSpecifierList, typeParameterDescriptor, (ClassDescriptor) containingDeclaration,
+                                                 conflictingTypes));
+                    }
+                    else if (sourceElement instanceof JetTypeParameter) {
+                        trace.report(INCONSISTENT_TYPE_PARAMETER_BOUNDS
+                                             .on((JetTypeParameter) sourceElement, typeParameterDescriptor, (ClassDescriptor) containingDeclaration,
+                                                 conflictingTypes));
+                    }
                 }
             }
         }
@@ -362,6 +383,12 @@ public class DeclarationsChecker {
             for (JetTypeParameter typeParameter : typeParameterListOwner.getTypeParameters()) {
                 if (typeParameter.getExtendsBound() != null && hasConstraints(typeParameter, constraints)) {
                     trace.report(MISPLACED_TYPE_PARAMETER_CONSTRAINTS.on(typeParameter));
+                }
+                else {
+                    TypeParameterDescriptor descriptor = trace.get(TYPE_PARAMETER, typeParameter);
+                    if (descriptor != null) {
+                        checkSupertypesForConsistency(typeParameter, descriptor);
+                    }
                 }
             }
         }
