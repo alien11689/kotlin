@@ -384,11 +384,9 @@ public class DeclarationsChecker {
                 if (typeParameter.getExtendsBound() != null && hasConstraints(typeParameter, constraints)) {
                     trace.report(MISPLACED_TYPE_PARAMETER_CONSTRAINTS.on(typeParameter));
                 }
-                else {
-                    TypeParameterDescriptor descriptor = trace.get(TYPE_PARAMETER, typeParameter);
-                    if (descriptor != null) {
-                        checkSupertypesForConsistency(typeParameter, descriptor);
-                    }
+                TypeParameterDescriptor descriptor = trace.get(TYPE_PARAMETER, typeParameter);
+                if (descriptor != null) {
+                    checkSupertypesForConsistency(typeParameter, descriptor);
                 }
             }
         }

@@ -1,5 +1,7 @@
 package
 
+public fun </*0*/ T : D<A>> bar(): kotlin.Unit where T : D<B>
+
 public interface A {
     public open override /*1*/ /*fake_override*/ fun equals(/*0*/ other: kotlin.Any?): kotlin.Boolean
     public open override /*1*/ /*fake_override*/ fun hashCode(): kotlin.Int
