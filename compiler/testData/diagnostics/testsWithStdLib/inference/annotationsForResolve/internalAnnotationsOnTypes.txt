@@ -1,0 +1,4 @@
+package
+
+public fun test(/*0*/ list: kotlin.List<kotlin.Int>): kotlin.Unit
+@kotlin.Suppress(names = {"INVISIBLE_MEMBER", "INVISIBLE_REFERENCE"}) @kotlin.inline() public fun </*0*/ reified R> kotlin.Iterable<*>.filterIsInstance1(): kotlin.List<R>
