@@ -31,7 +31,6 @@ import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptorWithVisibility
 import org.jetbrains.kotlin.diagnostics.Diagnostic
 import org.jetbrains.kotlin.diagnostics.DiagnosticFactory
-import org.jetbrains.kotlin.diagnostics.DiagnosticWithParameters2
 import org.jetbrains.kotlin.diagnostics.Errors
 import org.jetbrains.kotlin.idea.JetBundle
 import org.jetbrains.kotlin.idea.actions.KotlinAddImportAction
@@ -44,25 +43,24 @@ import org.jetbrains.kotlin.idea.core.getResolutionScope
 import org.jetbrains.kotlin.idea.core.isVisible
 import org.jetbrains.kotlin.idea.project.ProjectStructureUtil
 import org.jetbrains.kotlin.idea.util.CallTypeAndReceiver
-import org.jetbrains.kotlin.lexer.JetTokens
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.isImportDirectiveExpression
 import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
 import org.jetbrains.kotlin.types.expressions.OperatorConventions
+import org.jetbrains.kotlin.util.OperatorNameConventions
 import org.jetbrains.kotlin.utils.CachedValueProperty
+import org.jetbrains.kotlin.utils.addToStdlib.singletonList
+import org.jetbrains.kotlin.utils.addToStdlib.singletonOrEmptyList
 import java.util.*
 
 /**
  * Check possibility and perform fix for unresolved references.
  */
-abstract class AutoImportFixBase public constructor(
-        expression: JetExpression,
-        val diagnostics: Collection<Diagnostic> = emptyList()) : KotlinQuickFixAction<JetExpression>(expression), HighPriorityAction, HintAction {
+abstract class AutoImportFixBase<T: JetExpression>(expression: T, val diagnostics: Collection<Diagnostic>) :
+        KotlinQuickFixAction<T>(expression), HighPriorityAction, HintAction {
 
-    protected constructor(
-            expression: JetExpression,
-            diagnostic: Diagnostic? = null) : this(expression, if (diagnostic == null) emptyList() else listOf(diagnostic))
+    protected constructor(expression: T, diagnostic: Diagnostic? = null) : this(expression, diagnostic.singletonOrEmptyList())
 
     private val modificationCountOnCreate = PsiModificationTracker.SERVICE.getInstance(element.getProject()).getModificationCount()
 
@@ -75,6 +73,10 @@ abstract class AutoImportFixBase public constructor(
                 descriptors
             },
             { PsiModificationTracker.SERVICE.getInstance(element.getProject()).getModificationCount() })
+
+    protected abstract fun getSupportedErrors(): Collection<DiagnosticFactory<*>>
+    protected abstract fun getCallTypeAndReceiver(): CallTypeAndReceiver<*, *>
+    protected abstract fun getImportNames(): Collection<Name>
 
     override fun showHint(editor: Editor): Boolean {
         if (!element.isValid() || isOutdated()) return false
@@ -111,94 +113,90 @@ abstract class AutoImportFixBase public constructor(
 
     protected fun computeSuggestions(): Collection<DeclarationDescriptor> {
         if (!element.isValid()) return listOf()
+        if (element.getContainingFile() !is JetFile) return emptyList()
 
-        val file = element.getContainingFile() as? JetFile ?: return emptyList()
-
-        val callTypeAndReceiver = getTypeAndReceiver()
+        val callTypeAndReceiver = getCallTypeAndReceiver()
 
         if (callTypeAndReceiver is CallTypeAndReceiver.UNKNOWN) return emptyList()
 
-        var referenceNames = getImportNames(diagnostics, element).filter { it.isNotEmpty() }
+        var referenceNames = getImportNames()
         if (referenceNames.isEmpty()) return emptyList()
 
         return referenceNames.flatMapTo(LinkedHashSet()) {
-            Helper.computeSuggestionsForName(callTypeAndReceiver, element, file, it, getSupportedErrors())
+            computeSuggestionsForName(it, callTypeAndReceiver)
         }
     }
 
-    protected abstract fun getSupportedErrors(): Collection<DiagnosticFactory<*>>
-    protected abstract fun getTypeAndReceiver(): CallTypeAndReceiver<*, *>
-    protected abstract fun getImportNames(diagnostics: Collection<Diagnostic>, element: JetExpression): Collection<String>
+    public fun computeSuggestionsForName(name: Name, callTypeAndReceiver: CallTypeAndReceiver<out JetElement?, *>):
+            Collection<DeclarationDescriptor> {
+        val nameStr = name.asString()
+        if (nameStr.isEmpty()) return emptyList()
 
-    private object Helper {
-        public fun computeSuggestionsForName(
-                callTypeAndReceiver: CallTypeAndReceiver<out JetElement?, *>,
-                expression: JetExpression, file: JetFile, referenceName: String,
-                supportedErrors: Collection<DiagnosticFactory<*>>): Collection<DeclarationDescriptor> {
-            fun filterByCallType(descriptor: DeclarationDescriptor) = callTypeAndReceiver.callType.descriptorKindFilter.accepts(descriptor)
+        val file = element.getContainingFile() as JetFile
 
-            val searchScope = getResolveScope(file)
+        fun filterByCallType(descriptor: DeclarationDescriptor) = callTypeAndReceiver.callType.descriptorKindFilter.accepts(descriptor)
 
-            val bindingContext = expression.analyze(BodyResolveMode.PARTIAL)
+        val searchScope = getResolveScope(file)
 
-            val diagnostics = bindingContext.getDiagnostics().forElement(expression)
+        val bindingContext = element.analyze(BodyResolveMode.PARTIAL)
 
-            if (!diagnostics.any { it.getFactory() in supportedErrors }) return emptyList()
+        val diagnostics = bindingContext.getDiagnostics().forElement(element)
 
-            val resolutionScope = expression.getResolutionScope(bindingContext, file.getResolutionFacade())
-            val containingDescriptor = resolutionScope.ownerDescriptor
+        if (!diagnostics.any { it.getFactory() in getSupportedErrors() }) return emptyList()
 
-            fun isVisible(descriptor: DeclarationDescriptor): Boolean {
-                if (descriptor is DeclarationDescriptorWithVisibility) {
-                    return descriptor.isVisible(containingDescriptor, bindingContext, expression as? JetSimpleNameExpression)
-                }
+        val resolutionScope = element.getResolutionScope(bindingContext, file.getResolutionFacade())
+        val containingDescriptor = resolutionScope.ownerDescriptor
 
-                return true
+        fun isVisible(descriptor: DeclarationDescriptor): Boolean {
+            if (descriptor is DeclarationDescriptorWithVisibility) {
+                return descriptor.isVisible(containingDescriptor, bindingContext, element as? JetSimpleNameExpression)
             }
 
-            val result = ArrayList<DeclarationDescriptor>()
-
-            val indicesHelper = KotlinIndicesHelper(expression.getResolutionFacade(), searchScope, ::isVisible, true)
-
-            if (expression is JetSimpleNameExpression) {
-                if (!expression.isImportDirectiveExpression() && !JetPsiUtil.isSelectorInQualified(expression)) {
-                    if (ProjectStructureUtil.isJsKotlinModule(file)) {
-                        indicesHelper.getKotlinClasses({ it == referenceName }, { true }).filterTo(result, ::filterByCallType)
-
-                    }
-                    else {
-                        indicesHelper.getJvmClassesByName(referenceName).filterTo(result, ::filterByCallType)
-                    }
-
-                    indicesHelper.getTopLevelCallablesByName(referenceName).filterTo(result, ::filterByCallType)
-                }
-            }
-
-            result.addAll(indicesHelper.getCallableTopLevelExtensions({ it == referenceName }, callTypeAndReceiver, expression, bindingContext))
-
-            return if (result.size > 1)
-                reduceCandidatesBasedOnDependencyRuleViolation(result, file)
-            else
-                result
+            return true
         }
 
-        private fun reduceCandidatesBasedOnDependencyRuleViolation(
-                candidates: Collection<DeclarationDescriptor>, file: PsiFile): Collection<DeclarationDescriptor> {
-            val project = file.project
-            val validationManager = DependencyValidationManager.getInstance(project)
-            return candidates.filter {
-                val targetFile = DescriptorToSourceUtilsIde.getAnyDeclaration(project, it)?.containingFile ?: return@filter true
-                validationManager.getViolatorDependencyRules(file, targetFile).isEmpty()
+        val result = ArrayList<DeclarationDescriptor>()
+
+        val indicesHelper = KotlinIndicesHelper(element.getResolutionFacade(), searchScope, ::isVisible, true)
+
+        val expression = element
+        if (expression is JetSimpleNameExpression) {
+            if (!expression.isImportDirectiveExpression() && !JetPsiUtil.isSelectorInQualified(expression)) {
+                if (ProjectStructureUtil.isJsKotlinModule(file)) {
+                    indicesHelper.getKotlinClasses({ it == nameStr }, { true }).filterTo(result, ::filterByCallType)
+                }
+                else {
+                    indicesHelper.getJvmClassesByName(nameStr).filterTo(result, ::filterByCallType)
+                }
+
+                indicesHelper.getTopLevelCallablesByName(nameStr).filterTo(result, ::filterByCallType)
             }
+        }
+
+        result.addAll(indicesHelper.getCallableTopLevelExtensions({ it == nameStr }, callTypeAndReceiver, element, bindingContext))
+
+        return if (result.size > 1)
+            reduceCandidatesBasedOnDependencyRuleViolation(result, file)
+        else
+            result
+    }
+
+    private fun reduceCandidatesBasedOnDependencyRuleViolation(
+            candidates: Collection<DeclarationDescriptor>, file: PsiFile): Collection<DeclarationDescriptor> {
+        val project = file.project
+        val validationManager = DependencyValidationManager.getInstance(project)
+        return candidates.filter {
+            val targetFile = DescriptorToSourceUtilsIde.getAnyDeclaration(project, it)?.containingFile ?: return@filter true
+            validationManager.getViolatorDependencyRules(file, targetFile).isEmpty()
         }
     }
 }
 
-class AutoImportFix(expression: JetSimpleNameExpression, diagnostic: Diagnostic? = null) : AutoImportFixBase(expression, diagnostic) {
-    override fun getTypeAndReceiver(): CallTypeAndReceiver<*, *> = CallTypeAndReceiver.detect(element as JetSimpleNameExpression)
-    override fun getImportNames(diagnostics: Collection<Diagnostic>, element: JetExpression): Collection<String> {
-        element as JetSimpleNameExpression
+class AutoImportFix(expression: JetSimpleNameExpression, diagnostic: Diagnostic? = null) :
+        AutoImportFixBase<JetSimpleNameExpression>(expression, diagnostic) {
+    override fun getCallTypeAndReceiver() = CallTypeAndReceiver.detect(element)
 
+    override fun getImportNames(): Collection<Name> {
         if (element.getIdentifier() == null) {
             val conventionName = JetPsiUtil.getConventionName(element)
             if (conventionName != null) {
@@ -208,16 +206,16 @@ class AutoImportFix(expression: JetSimpleNameExpression, diagnostic: Diagnostic?
                         val conterpart = OperatorConventions.ASSIGNMENT_OPERATION_COUNTERPARTS.get(elementType)
                         val counterpartName = OperatorConventions.BINARY_OPERATION_NAMES.get(conterpart)
                         if (counterpartName != null) {
-                            return listOf(conventionName.asString(), counterpartName.asString())
+                            return listOf(conventionName, counterpartName)
                         }
                     }
                 }
 
-                return listOf(conventionName.asString())
+                return conventionName.singletonOrEmptyList()
             }
         }
-        else {
-            return listOf(element.getReferencedName())
+        else if (Name.isValidIdentifier(element.getReferencedName())) {
+            return Name.identifier(element.getReferencedName()).singletonOrEmptyList()
         }
 
         return emptyList()
@@ -226,15 +224,8 @@ class AutoImportFix(expression: JetSimpleNameExpression, diagnostic: Diagnostic?
     override fun getSupportedErrors() = ERRORS
 
     companion object : JetSingleIntentionActionFactory() {
-        override fun createAction(diagnostic: Diagnostic): KotlinQuickFixAction<JetExpression>? {
-            // There could be different psi elements (i.e. JetArrayAccessExpression), but we can fix only JetSimpleNameExpression case
-            val psiElement = diagnostic.getPsiElement()
-            if (psiElement is JetSimpleNameExpression) {
-                return AutoImportFix(psiElement, diagnostic)
-            }
-
-            return null
-        }
+        override fun createAction(diagnostic: Diagnostic) =
+                (diagnostic.getPsiElement() as? JetSimpleNameExpression)?.let { AutoImportFix(it, diagnostic) }
 
         override fun isApplicableForCodeFragment() = true
 
@@ -242,40 +233,42 @@ class AutoImportFix(expression: JetSimpleNameExpression, diagnostic: Diagnostic?
     }
 }
 
-class MissingInvokeAutoImportFix(expression: JetExpression, diagnostic: Diagnostic) : AutoImportFixBase(expression, diagnostic) {
-    override fun getImportNames(diagnostics: Collection<Diagnostic>, element: JetExpression) = setOf("invoke")
+class MissingInvokeAutoImportFix(expression: JetExpression, diagnostic: Diagnostic) :
+        AutoImportFixBase<JetExpression>(expression, diagnostic) {
+    override fun getImportNames() = OperatorNameConventions.INVOKE.singletonList()
 
-    override fun getTypeAndReceiver() = CallTypeAndReceiver.OPERATOR(element as JetExpression)
+    override fun getCallTypeAndReceiver() = CallTypeAndReceiver.OPERATOR(element)
 
     override fun getSupportedErrors() = ERRORS
 
     companion object : JetSingleIntentionActionFactory() {
-        override fun createAction(diagnostic: Diagnostic): KotlinQuickFixAction<JetExpression>? {
-            val element = diagnostic.psiElement
-            if (element is JetExpression) {
-                return MissingInvokeAutoImportFix(element, diagnostic)
-            }
-
-            return null
-        }
+        override fun createAction(diagnostic: Diagnostic) =
+                (diagnostic.psiElement as? JetExpression)?.let { MissingInvokeAutoImportFix(it, diagnostic) }
 
         private val ERRORS by lazy(LazyThreadSafetyMode.PUBLICATION) { QuickFixes.getInstance().getDiagnostics(this) }
     }
 }
 
-class MissingArrayAccessorAutoImportFix(element: JetArrayAccessExpression, diagnostic: Diagnostic) : AutoImportFixBase(element, diagnostic) {
-    override fun getImportNames(diagnostics: Collection<Diagnostic>, element: JetExpression): Set<String> {
-        val s = if ((element.parent as? JetBinaryExpression)?.operationToken == JetTokens.EQ) "set" else "get"
-        return setOf(s)
+class MissingArrayAccessorAutoImportFix(element: JetArrayAccessExpression, diagnostic: Diagnostic) :
+        AutoImportFixBase<JetArrayAccessExpression>(element, diagnostic) {
+    override fun getImportNames(): Collection<Name> {
+        return (if (diagnostics.first().factory == Errors.NO_GET_METHOD) {
+            OperatorNameConventions.GET
+        }
+        else {
+            OperatorNameConventions.SET
+        }).singletonList()
     }
 
-    override fun getTypeAndReceiver() =
-            CallTypeAndReceiver.OPERATOR((element as JetArrayAccessExpression).arrayExpression!!)
+    override fun getCallTypeAndReceiver() =
+            CallTypeAndReceiver.OPERATOR(element.arrayExpression!!)
 
     override fun getSupportedErrors() = ERRORS
 
     companion object : JetSingleIntentionActionFactory() {
-        override fun createAction(diagnostic: Diagnostic): KotlinQuickFixAction<JetExpression>? {
+        override fun createAction(diagnostic: Diagnostic): KotlinQuickFixAction<JetArrayAccessExpression>? {
+            assert(diagnostic.factory == Errors.NO_GET_METHOD || diagnostic.factory == Errors.NO_SET_METHOD)
+
             val element = diagnostic.psiElement
             if (element is JetArrayAccessExpression && element.arrayExpression != null) {
                 return MissingArrayAccessorAutoImportFix(element, diagnostic)
@@ -288,16 +281,23 @@ class MissingArrayAccessorAutoImportFix(element: JetArrayAccessExpression, diagn
     }
 }
 
-class MissingDelegateAccessorsAutoImportFix(element: JetExpression, diagnostics: Collection<Diagnostic>) : AutoImportFixBase(element, diagnostics) {
+class MissingDelegateAccessorsAutoImportFix(element: JetExpression, diagnostics: Collection<Diagnostic>) :
+        AutoImportFixBase<JetExpression>(element, diagnostics) {
     override fun createAction(project: Project, editor: Editor): KotlinAddImportAction {
         return KotlinAddImportAction(project, editor, element, suggestions)
     }
 
-    override fun getImportNames(diagnostics: Collection<Diagnostic>, element: JetExpression): Set<String> {
-        return diagnostics.mapTo(LinkedHashSet()) { if (it.toString().contains("setValue")) "setValue" else "getValue" }
+    override fun getImportNames(): Collection<Name> {
+        return diagnostics.map {
+            val missingMethodSignature = Errors.DELEGATE_SPECIAL_FUNCTION_MISSING.cast(it).a
+            if (missingMethodSignature.startsWith(OperatorNameConventions.GET_VALUE.identifier))
+                OperatorNameConventions.GET_VALUE
+            else
+                OperatorNameConventions.SET_VALUE
+        }.distinct()
     }
 
-    override fun getTypeAndReceiver() = CallTypeAndReceiver.DELEGATE(element as JetExpression)
+    override fun getCallTypeAndReceiver() = CallTypeAndReceiver.DELEGATE(element)
 
     override fun getSupportedErrors() = ERRORS
 
@@ -311,19 +311,13 @@ class MissingDelegateAccessorsAutoImportFix(element: JetExpression, diagnostics:
     }
 }
 
-class MissingComponentsAutoImportFix(element: JetExpression, diagnostics: Collection<Diagnostic>) : AutoImportFixBase(element, diagnostics) {
-    override fun createAction(project: Project, editor: Editor): KotlinAddImportAction {
-        return KotlinAddImportAction(project, editor, element, suggestions)
-    }
+class MissingComponentsAutoImportFix(element: JetExpression, diagnostics: Collection<Diagnostic>) :
+        AutoImportFixBase<JetExpression>(element, diagnostics) {
+    override fun createAction(project: Project, editor: Editor) = KotlinAddImportAction(project, editor, element, suggestions)
 
-    override fun getImportNames(diagnostics: Collection<Diagnostic>, element: JetExpression): List<String> {
-        return diagnostics.map {
-            @Suppress("UNCHECKED_CAST")
-            (it as DiagnosticWithParameters2<*, Name, *>).a.identifier
-        }
-    }
+    override fun getImportNames() = diagnostics.map { Name.identifier(Errors.COMPONENT_FUNCTION_MISSING.cast(it).a.identifier) }
 
-    override fun getTypeAndReceiver() = CallTypeAndReceiver.OPERATOR(element as JetExpression)
+    override fun getCallTypeAndReceiver() = CallTypeAndReceiver.OPERATOR(element)
 
     override fun getSupportedErrors() = ERRORS
 
