@@ -52,10 +52,7 @@ import org.jetbrains.kotlin.psi.psiUtil.startOffset
 import org.jetbrains.kotlin.utils.addToStdlib.singletonList
 import java.util.*
 
-class KotlinCreateTestIntention : JetSelfTargetingRangeIntention<JetClassOrObject>(
-        JetClassOrObject::class.java,
-        CodeInsightBundle.message("intention.create.test")
-) {
+class KotlinCreateTestIntention : JetSelfTargetingRangeIntention<JetClassOrObject>(JetClassOrObject::class.java, "Create test") {
     override fun applicabilityRange(element: JetClassOrObject): TextRange? {
         if (element.isLocal()) return null
         if (element is JetEnumEntry) return null
