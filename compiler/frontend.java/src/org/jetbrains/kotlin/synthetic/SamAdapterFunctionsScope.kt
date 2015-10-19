@@ -30,9 +30,7 @@ import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
 import org.jetbrains.kotlin.resolve.scopes.JetScope
 import org.jetbrains.kotlin.storage.StorageManager
 import org.jetbrains.kotlin.types.*
-import java.util.ArrayList
-import java.util.HashMap
-import java.util.LinkedHashSet
+import java.util.*
 import kotlin.properties.Delegates
 
 interface SamAdapterExtensionFunctionDescriptor : FunctionDescriptor {
@@ -101,7 +99,7 @@ class SamAdapterFunctionsScope(storageManager: StorageManager) : JetScope by Jet
             fun create(sourceFunction: FunctionDescriptor): MyFunctionDescriptor {
                 val descriptor = MyFunctionDescriptor(DescriptorUtils.getContainingModule(sourceFunction),
                                                       null,
-                                                      Annotations.EMPTY, //TODO
+                                                      sourceFunction.annotations,
                                                       sourceFunction.name,
                                                       CallableMemberDescriptor.Kind.SYNTHESIZED,
                                                       sourceFunction.source)

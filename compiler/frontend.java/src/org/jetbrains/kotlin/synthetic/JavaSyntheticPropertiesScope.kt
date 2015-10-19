@@ -36,7 +36,6 @@ import org.jetbrains.kotlin.types.typeUtil.isSubtypeOf
 import org.jetbrains.kotlin.types.typeUtil.isUnit
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.capitalizeAsciiOnly
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.capitalizeFirstWord
-import org.jetbrains.kotlin.util.capitalizeDecapitalize.decapitalizeSmart
 import org.jetbrains.kotlin.utils.Printer
 import org.jetbrains.kotlin.utils.addIfNotNull
 import java.util.*
@@ -276,7 +275,7 @@ class JavaSyntheticPropertiesScope(storageManager: StorageManager) : JetScopeImp
                 descriptor.setType(propertyType, typeParameters, null, receiverType)
 
                 val getter = PropertyGetterDescriptorImpl(descriptor,
-                                                          Annotations.EMPTY,
+                                                          getMethod.annotations,
                                                           Modality.FINAL,
                                                           visibility,
                                                           false,
@@ -288,7 +287,7 @@ class JavaSyntheticPropertiesScope(storageManager: StorageManager) : JetScopeImp
 
                 val setter = if (setMethod != null)
                     PropertySetterDescriptorImpl(descriptor,
-                                                 Annotations.EMPTY,
+                                                 setMethod.annotations,
                                                  Modality.FINAL,
                                                  syntheticExtensionVisibility(setMethod),
                                                  false,
