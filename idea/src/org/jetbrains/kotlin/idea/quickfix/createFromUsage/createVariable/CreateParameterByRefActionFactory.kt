@@ -17,7 +17,6 @@
 package org.jetbrains.kotlin.idea.quickfix.createFromUsage.createVariable
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.ClassDescriptorWithResolutionScopes
 import org.jetbrains.kotlin.descriptors.ConstructorDescriptor
@@ -52,11 +51,8 @@ object CreateParameterByRefActionFactory : CreateParameterFromUsageFactory<JetSi
         return refExpr
     }
 
-    override fun extractFixData(
-            element: JetSimpleNameExpression,
-            diagnostic: Diagnostic
-    ): CreateParameterData<JetSimpleNameExpression>? {
-        val result = (diagnostic.psiFile as? JetFile)?.analyzeFullyAndGetResult() ?: return null
+    fun extractFixData(element: JetSimpleNameExpression): CreateParameterData<JetSimpleNameExpression>? {
+        val result = (element.containingFile as? JetFile)?.analyzeFullyAndGetResult() ?: return null
         val context = result.bindingContext
         val moduleDescriptor = result.moduleDescriptor
 
@@ -129,6 +125,8 @@ object CreateParameterByRefActionFactory : CreateParameterFromUsageFactory<JetSi
                 element
         )
     }
+
+    override fun extractFixData(element: JetSimpleNameExpression, diagnostic: Diagnostic) = extractFixData(element)
 }
 
 fun JetType.hasTypeParametersToAdd(functionDescriptor: FunctionDescriptor, context: BindingContext): Boolean {
