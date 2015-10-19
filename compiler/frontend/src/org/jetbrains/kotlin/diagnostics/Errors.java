@@ -185,7 +185,7 @@ public interface Errors {
 
 
     DiagnosticFactory0<JetTypeReference> FINAL_SUPERTYPE = DiagnosticFactory0.create(ERROR);
-    DiagnosticFactory0<JetTypeReference> DATA_CLASS_CANNOT_HAVE_CLASS_SUPERTYPES = DiagnosticFactory0.create(WARNING);
+    DiagnosticFactory0<JetTypeReference> DATA_CLASS_CANNOT_HAVE_CLASS_SUPERTYPES = DiagnosticFactory0.create(ERROR);
     DiagnosticFactory0<JetTypeReference> SINGLETON_IN_SUPERTYPE = DiagnosticFactory0.create(ERROR);
     DiagnosticFactory0<JetNullableType> NULLABLE_SUPERTYPE = DiagnosticFactory0.create(ERROR, NULLABLE_TYPE);
     DiagnosticFactory0<JetTypeReference> DYNAMIC_SUPERTYPE = DiagnosticFactory0.create(ERROR);
@@ -411,9 +411,9 @@ public interface Errors {
 
     DiagnosticFactory0<JetReferenceExpression> NAME_FOR_AMBIGUOUS_PARAMETER = DiagnosticFactory0.create(ERROR);
 
-    DiagnosticFactory0<PsiElement> DATA_CLASS_WITHOUT_PARAMETERS = DiagnosticFactory0.create(WARNING);
-    DiagnosticFactory0<JetParameter> DATA_CLASS_VARARG_PARAMETER = DiagnosticFactory0.create(WARNING);
-    DiagnosticFactory0<JetParameter> DATA_CLASS_NOT_PROPERTY_PARAMETER = DiagnosticFactory0.create(WARNING);
+    DiagnosticFactory0<PsiElement> DATA_CLASS_WITHOUT_PARAMETERS = DiagnosticFactory0.create(ERROR);
+    DiagnosticFactory0<JetParameter> DATA_CLASS_VARARG_PARAMETER = DiagnosticFactory0.create(ERROR);
+    DiagnosticFactory0<JetParameter> DATA_CLASS_NOT_PROPERTY_PARAMETER = DiagnosticFactory0.create(ERROR);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -558,7 +558,7 @@ public interface Errors {
 
     DiagnosticFactory1<JetSimpleNameExpression, JetType> COMPARE_TO_TYPE_MISMATCH = DiagnosticFactory1.create(ERROR);
 
-    DiagnosticFactory0<PsiElement> UNDERSCORE_IS_DEPRECATED = DiagnosticFactory0.create(WARNING);
+    DiagnosticFactory0<PsiElement> UNDERSCORE_IS_RESERVED = DiagnosticFactory0.create(ERROR);
     DiagnosticFactory1<PsiElement, String> INVALID_CHARACTERS = DiagnosticFactory1.create(ERROR);
 
     DiagnosticFactory0<PsiElement> INAPPLICABLE_OPERATOR_MODIFIER = DiagnosticFactory0.create(WARNING);
